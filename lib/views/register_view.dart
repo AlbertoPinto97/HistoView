@@ -1,14 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({Key? key}) : super(key: key);
+class RegisterView extends StatefulWidget {
+  const RegisterView({Key? key}) : super(key: key);
 
-  final _loginFormKey = GlobalKey<FormState>();
+  @override
+  _RegisterViewState createState() => _RegisterViewState();
+}
+
+class _RegisterViewState extends State<RegisterView> {
+  final _registerFormKey = GlobalKey<FormState>();
   final _emailValidator = MultiValidator([
     RequiredValidator(errorText: 'Email is required'),
     EmailValidator(errorText: 'Plese enter a valid email'),
   ]);
+  final _passwordValidator = MultiValidator([
+    RequiredValidator(errorText: 'Password is required'),
+    MinLengthValidator(8, errorText: 'Password must be at least 8 digits long'),
+  ]);
+  String _password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -19,12 +29,29 @@ class LoginView extends StatelessWidget {
             gradient: LinearGradient(colors: [Colors.red, Colors.yellow])),
         child: Center(
           child: Column(children: [
+            //BACK ARROW
             const SizedBox(
-              height: 100,
+              height: 40,
+            ),
+            Container(
+                padding: const EdgeInsets.only(left: 10),
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 35,
+                  ),
+                )),
+            const SizedBox(
+              height: 30,
             ),
             //TITLE
             const Text(
-              'LOGIN',
+              'REGISTER',
               style: TextStyle(
                   fontFamily: 'OpenSans',
                   fontSize: 40,
@@ -44,7 +71,7 @@ class LoginView extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Form(
-                  key: _loginFormKey,
+                  key: _registerFormKey,
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -84,23 +111,46 @@ class LoginView extends StatelessWidget {
                         TextFormField(
                           style: const TextStyle(fontSize: 15),
                           obscureText: true,
+                          onChanged: (val) => _password = val,
                           decoration: const InputDecoration(
                               isDense: true, hintText: 'Enter your password'),
-                          validator: RequiredValidator(
-                              errorText: 'Password is required'),
+                          validator: _passwordValidator,
+                        ),
+                        const SizedBox(
+                          height: 30,
+                        ),
+                        //CONFIRM PASSWORD
+                        Container(
+                          alignment: Alignment.topLeft,
+                          child: const Text(
+                            'Confirm Password',
+                            style: TextStyle(
+                                fontFamily: 'OpenSans',
+                                fontSize: 20,
+                                color: Colors.orange),
+                          ),
+                        ),
+                        TextFormField(
+                          style: const TextStyle(fontSize: 15),
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                              isDense: true, hintText: 'Confirm your password'),
+                          validator: (val) => MatchValidator(
+                                  errorText: 'Passwords do not match')
+                              .validateMatch(val!, _password),
                         ),
                         const SizedBox(
                           height: 20,
                         ),
-                        //FORGOT PASSWORD
+                        //ALREADY HAVEN AN ACCOUNT
                         GestureDetector(
                           onTap: () {
-                            Navigator.pushNamed(context, '/forgotPassword');
+                            Navigator.pushNamed(context, '/login');
                           },
                           child: Container(
                             alignment: Alignment.topRight,
                             child: const Text(
-                              'Forgot password?',
+                              'Already have an account?',
                               style: TextStyle(
                                   fontFamily: 'OpenSans',
                                   fontSize: 12,
@@ -110,9 +160,9 @@ class LoginView extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(
-                          height: 50,
+                          height: 30,
                         ),
-                        //BUTTON SIGN IN
+                        //BUTTON SIGN UP
                         SizedBox(
                           height: 60,
                           width: 260,
@@ -128,34 +178,21 @@ class LoginView extends StatelessWidget {
                                     MaterialStateProperty.all(Colors.orange),
                               ),
                               onPressed: () {
-                                if (_loginFormKey.currentState!.validate()) {
-                                  //TODO: Login system
+                                if (_registerFormKey.currentState!.validate()) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                        content: Text('Processing Data')),
+                                  );
+                                  //TODO: Add new account to the DB and check that the email is not being used by other user
                                 }
                               },
                               child: const Text(
-                                'Sign in',
+                                'Sign up',
                                 style: TextStyle(
                                     fontSize: 25,
                                     fontFamily: 'OpenSans',
                                     color: Colors.white),
                               )),
-                        ),
-                        const SizedBox(
-                          height: 40,
-                        ),
-                        //DON'T HAVE AN ACCOUNT
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
-                          child: const Text(
-                            "Don't have an account?",
-                            style: TextStyle(
-                                fontFamily: 'OpenSans',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.orange),
-                          ),
                         ),
                       ]),
                 ),

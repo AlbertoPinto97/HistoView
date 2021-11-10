@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 
-class LoginView extends StatelessWidget {
-  LoginView({Key? key}) : super(key: key);
+class ForgotPasswordView extends StatelessWidget {
+  ForgotPasswordView({Key? key}) : super(key: key);
 
-  final _loginFormKey = GlobalKey<FormState>();
+  final _forgotPasswordFormKey = GlobalKey<FormState>();
   final _emailValidator = MultiValidator([
     RequiredValidator(errorText: 'Email is required'),
     EmailValidator(errorText: 'Plese enter a valid email'),
@@ -19,12 +19,30 @@ class LoginView extends StatelessWidget {
             gradient: LinearGradient(colors: [Colors.red, Colors.yellow])),
         child: Center(
           child: Column(children: [
+            //BACK ARROW
             const SizedBox(
-              height: 100,
+              height: 40,
+            ),
+            Container(
+                padding: const EdgeInsets.only(left: 10),
+                alignment: Alignment.topLeft,
+                child: IconButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  icon: const Icon(
+                    Icons.arrow_back,
+                    color: Colors.white,
+                    size: 35,
+                  ),
+                )),
+            const SizedBox(
+              height: 30,
             ),
             //TITLE
             const Text(
-              'LOGIN',
+              'FORGOT PASSWORD',
+              textAlign: TextAlign.center,
               style: TextStyle(
                   fontFamily: 'OpenSans',
                   fontSize: 40,
@@ -44,10 +62,17 @@ class LoginView extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 25),
                 child: Form(
-                  key: _loginFormKey,
+                  key: _forgotPasswordFormKey,
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        const Text(
+                          'Introduce your email to send you an email with your password.',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                        const SizedBox(
+                          height: 40,
+                        ),
                         //EMAIL
                         Container(
                           alignment: Alignment.topLeft,
@@ -68,51 +93,9 @@ class LoginView extends StatelessWidget {
                           validator: _emailValidator,
                         ),
                         const SizedBox(
-                          height: 30,
+                          height: 80,
                         ),
-                        //PASSWORD
-                        Container(
-                          alignment: Alignment.topLeft,
-                          child: const Text(
-                            'Password',
-                            style: TextStyle(
-                                fontFamily: 'OpenSans',
-                                fontSize: 20,
-                                color: Colors.orange),
-                          ),
-                        ),
-                        TextFormField(
-                          style: const TextStyle(fontSize: 15),
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                              isDense: true, hintText: 'Enter your password'),
-                          validator: RequiredValidator(
-                              errorText: 'Password is required'),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        //FORGOT PASSWORD
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/forgotPassword');
-                          },
-                          child: Container(
-                            alignment: Alignment.topRight,
-                            child: const Text(
-                              'Forgot password?',
-                              style: TextStyle(
-                                  fontFamily: 'OpenSans',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w300,
-                                  color: Colors.orange),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 50,
-                        ),
-                        //BUTTON SIGN IN
+                        //BUTTON SEND EMAIL
                         SizedBox(
                           height: 60,
                           width: 260,
@@ -128,34 +111,21 @@ class LoginView extends StatelessWidget {
                                     MaterialStateProperty.all(Colors.orange),
                               ),
                               onPressed: () {
-                                if (_loginFormKey.currentState!.validate()) {
-                                  //TODO: Login system
+                                if (_forgotPasswordFormKey.currentState!
+                                    .validate()) {
+                                  //TODO: Implement email system
                                 }
                               },
                               child: const Text(
-                                'Sign in',
+                                'Send Email',
                                 style: TextStyle(
-                                    fontSize: 25,
+                                    fontSize: 22,
                                     fontFamily: 'OpenSans',
                                     color: Colors.white),
                               )),
                         ),
                         const SizedBox(
-                          height: 40,
-                        ),
-                        //DON'T HAVE AN ACCOUNT
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, '/register');
-                          },
-                          child: const Text(
-                            "Don't have an account?",
-                            style: TextStyle(
-                                fontFamily: 'OpenSans',
-                                fontSize: 15,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.orange),
-                          ),
+                          height: 60,
                         ),
                       ]),
                 ),
