@@ -2,7 +2,9 @@
     package="com.example.histo_view">
    <application
         android:label="HistoView"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher">        
+        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyDOWmf2I5bjF8bkXt4ZpscncDJ-qjKd_1s"/>
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"

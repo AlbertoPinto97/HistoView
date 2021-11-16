@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:histo_view/views/forgot_password_view.dart';
 import 'package:histo_view/views/login_view.dart';
 import 'package:histo_view/views/register_view.dart';
+import 'package:histo_view/views/tab_bar_view.dart';
+import 'package:histo_view/views/tabs/favorite_view.dart';
+import 'package:histo_view/views/tabs/map/map_view.dart';
+import 'package:histo_view/views/tabs/profile_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,12 +23,16 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      initialRoute: '/',
+      initialRoute: '/tabBar',
       routes: {
         '/': (context) => LoginView(),
         '/login': (context) => LoginView(),
         '/register': (context) => const RegisterView(),
         '/forgotPassword': (context) => ForgotPasswordView(),
+        '/tabBar': (context) => const TabBarAppView(),
+        '/map': (context) => const MapView(),
+        '/favorite': (context) => const FavoriteView(),
+        '/profile': (context) => const ProfileView(),
       },
     );
   }
