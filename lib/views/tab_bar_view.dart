@@ -11,7 +11,7 @@ class TabBarAppView extends StatefulWidget {
 }
 
 class _TabBarAppViewState extends State<TabBarAppView> {
-  int _selectedIndex = 1;
+  int _selectedIndex = 0;
   static const List<Widget> _widgetOptions = <Widget>[
     FavoriteView(),
     MapView(),
@@ -34,6 +34,7 @@ class _TabBarAppViewState extends State<TabBarAppView> {
           child: _widgetOptions.elementAt(_selectedIndex),
         ),
         bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Colors.orange.shade100,
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
@@ -49,7 +50,8 @@ class _TabBarAppViewState extends State<TabBarAppView> {
             ),
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.orange,
+          selectedItemColor: Colors.orange.shade700,
+          unselectedItemColor: Colors.grey,
           onTap: _onItemTapped,
         ),
       ),
