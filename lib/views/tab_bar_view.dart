@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:histo_view/views/tabs/favorite_view.dart';
+import 'package:histo_view/views/tabs/favorite/favorite_view.dart';
 import 'package:histo_view/views/tabs/map/map_view.dart';
-import 'package:histo_view/views/tabs/profile_view.dart';
+import 'package:histo_view/views/tabs/profile/profile_view.dart';
 
 class TabBarAppView extends StatefulWidget {
   const TabBarAppView({Key? key}) : super(key: key);
@@ -15,7 +15,7 @@ class _TabBarAppViewState extends State<TabBarAppView> {
   static const List<Widget> _widgetOptions = <Widget>[
     FavoriteView(),
     MapView(),
-    ProfileView()
+    ProfileView(isOwnProfile: true)
   ];
 
   void _onItemTapped(int index) {

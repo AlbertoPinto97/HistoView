@@ -3,9 +3,9 @@ import 'package:histo_view/views/forgot_password_view.dart';
 import 'package:histo_view/views/login_view.dart';
 import 'package:histo_view/views/register_view.dart';
 import 'package:histo_view/views/tab_bar_view.dart';
-import 'package:histo_view/views/tabs/favorite_view.dart';
+import 'package:histo_view/views/tabs/favorite/favorite_view.dart';
 import 'package:histo_view/views/tabs/map/map_view.dart';
-import 'package:histo_view/views/tabs/profile_view.dart';
+import 'package:histo_view/views/tabs/profile/profile_view.dart';
 
 void main() {
   runApp(const MyApp());
@@ -30,9 +30,9 @@ class MyApp extends StatelessWidget {
         '/register': (context) => const RegisterView(),
         '/forgotPassword': (context) => ForgotPasswordView(),
         '/tabBar': (context) => const TabBarAppView(),
-        '/map': (context) => const MapView(),
+        /*'/map': (context) => const MapView(),
         '/favorite': (context) => const FavoriteView(),
-        '/profile': (context) => const ProfileView(),
+        '/profile': (context) => ProfileView(),*/
       },
     );
   }
