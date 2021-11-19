@@ -45,7 +45,11 @@ class ProfileView extends StatelessWidget {
                       )),
                       backgroundColor: MaterialStateProperty.all(Colors.orange),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (isOwnProfile) {
+                        Navigator.pushNamed(context, '/editProfile');
+                      }
+                    },
                     child: Row(
                       children: [
                         isOwnProfile
