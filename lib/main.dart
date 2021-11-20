@@ -1,14 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:histo_view/views/forgot_password_view.dart';
 import 'package:histo_view/views/login_view.dart';
 import 'package:histo_view/views/register_view.dart';
 import 'package:histo_view/views/tab_bar_view.dart';
-import 'package:histo_view/views/tabs/favorite/favorite_view.dart';
-import 'package:histo_view/views/tabs/map/map_view.dart';
 import 'package:histo_view/views/tabs/profile/edit_profile_view.dart';
-import 'package:histo_view/views/tabs/profile/profile_view.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 
@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.orange,
       ),
-      initialRoute: '/tabBar',
+      initialRoute: '/',
       routes: {
         '/': (context) => LoginView(),
         '/login': (context) => LoginView(),

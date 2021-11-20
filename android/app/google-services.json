@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "829457262206",
+    "project_id": "tfm-histoview",
+    "storage_bucket": "tfm-histoview.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:829457262206:android:c4dda67092a94f34ed5a2f",
+        "android_client_info": {
+          "package_name": "com.example.histo_view"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "829457262206-vb1puq34d3a68kta1vit6lp7qi6c0h0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUzg8pI9U5oTYREGqxQgvWioEZHZ_-AF8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "829457262206-vb1puq34d3a68kta1vit6lp7qi6c0h0r.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
