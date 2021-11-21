@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:histo_view/views/account_created_view.dart';
 import 'package:histo_view/views/forgot_password_view.dart';
 import 'package:histo_view/views/login_view.dart';
 import 'package:histo_view/views/register_view.dart';
@@ -26,15 +27,13 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       routes: {
-        '/': (context) => LoginView(),
-        '/login': (context) => LoginView(),
+        '/': (context) => const LoginView(),
+        '/login': (context) => const LoginView(),
         '/register': (context) => const RegisterView(),
         '/forgotPassword': (context) => ForgotPasswordView(),
         '/tabBar': (context) => const TabBarAppView(),
         '/editProfile': (context) => const EditProfileView(),
-        /*'/map': (context) => const MapView(),
-        '/favorite': (context) => const FavoriteView(),
-        '/profile': (context) => ProfileView(),*/
+        '/accountCreated': (context) => const AccountCreatedView(),
       },
     );
   }

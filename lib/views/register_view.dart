@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:histo_view/model/register_repository.dart';
+import 'package:histo_view/viewModel/register_view_model.dart';
+import 'package:histo_view/model/user.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -21,12 +22,13 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameSurnameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final firebase = RegisterRepository();
+  final viewModel = RegisterViewModel();
   bool _isEmailTaken = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: Container(
         decoration: const BoxDecoration(
             gradient: LinearGradient(colors: [Colors.red, Colors.yellow])),
@@ -93,6 +95,7 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   TextFormField(
                       controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
                       style: const TextStyle(fontSize: 15),
                       decoration: const InputDecoration(
                         isDense: true,
@@ -126,6 +129,7 @@ class _RegisterViewState extends State<RegisterView> {
                   ),
                   TextFormField(
                     controller: _nameSurnameController,
+                    keyboardType: TextInputType.name,
                     style: const TextStyle(fontSize: 15),
                     decoration: const InputDecoration(
                       isDense: true,
@@ -217,23 +221,23 @@ class _RegisterViewState extends State<RegisterView> {
                               MaterialStateProperty.all(Colors.orange),
                         ),
                         onPressed: () async {
+                          User user = User(
+                              _emailController.text,
+                              _passwordController.text,
+                              _nameSurnameController.text);
                           if (_registerFormKey.currentState!.validate()) {
-                            _isEmailTaken = await firebase
+                            _isEmailTaken = await viewModel
                                 .userExists(_emailController.text);
                             if (!_isEmailTaken) {
-                              firebase.registerUser(
-                                  _emailController.text,
-                                  _nameSurnameController.text,
-                                  _passwordController.text);
+                              viewModel.registerUser(user);
+                              Navigator.pushNamed(context, '/accountCreated');
                             }
                           } else if (_isEmailTaken) {
-                            _isEmailTaken = await firebase
+                            _isEmailTaken = await viewModel
                                 .userExists(_emailController.text);
                             if (!_isEmailTaken) {
-                              firebase.registerUser(
-                                  _emailController.text,
-                                  _nameSurnameController.text,
-                                  _passwordController.text);
+                              viewModel.registerUser(user);
+                              Navigator.pushNamed(context, '/accountCreated');
                             }
                           }
                           _registerFormKey.currentState!.validate();
