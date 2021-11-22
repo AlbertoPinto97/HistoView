@@ -7,10 +7,31 @@ class RegisterViewModel {
   }
 
   Future<bool> userExists(String email) async {
-    return await FireBaseService().userAlreadyExist(email);
+    bool userExists = false;
+    final users = await FireBaseService().userAlreadyExist(email);
+    for (var user in users.docs) {
+      var emailDB = user.data();
+      emailDB = emailDB['Email'];
+      if (emailDB == email) {
+        userExists = true;
+        break;
+      }
+    }
+
+    return userExists;
   }
 
   Future<bool> login(User user) async {
-    return await FireBaseService().checkUserPassword(user);
+    bool isLoginCorrect = false;
+    final usersDB = await FireBaseService().checkUserPassword(user);
+    for (var userDB in usersDB.docs) {
+      String emailDB = userDB.data()['Email'];
+      String passwordDB = userDB.data()['Password'];
+      if (emailDB == user.email && passwordDB == user.password) {
+        isLoginCorrect = true;
+        break;
+      }
+    }
+    return isLoginCorrect;
   }
 }
