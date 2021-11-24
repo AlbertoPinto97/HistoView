@@ -9,16 +9,18 @@ class User {
 
   User._internal();
 
-  factory User(String email, String password, [name = '']) {
-    _user.email = email;
-    _user.password = password;
-    if (name != '') {
-      _user.userName = name;
-    }
+  factory User() {
     return _user;
   }
 
-  set name(String value) {
-    _user.userName = value;
+  void setEmailPassword(String email, String password) {
+    _user.email = email;
+    _user.password = password;
+  }
+
+  void setParams(String email, String password, String username) {
+    _user.email = email;
+    _user.password = password;
+    _user.userName = username;
   }
 }

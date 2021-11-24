@@ -160,7 +160,8 @@ class _LoginViewState extends State<LoginView> {
                               MaterialStateProperty.all(Colors.orange),
                         ),
                         onPressed: () async {
-                          User user = User(
+                          User user = User();
+                          user.setEmailPassword(
                               _emailController.text, _passwordController.text);
                           if (_loginFormKey.currentState!.validate()) {
                             correctLogin = await viewModel.login(user);

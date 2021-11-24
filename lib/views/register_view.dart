@@ -221,7 +221,8 @@ class _RegisterViewState extends State<RegisterView> {
                               MaterialStateProperty.all(Colors.orange),
                         ),
                         onPressed: () async {
-                          User user = User(
+                          User user = User();
+                          user.setParams(
                               _emailController.text,
                               _passwordController.text,
                               _nameSurnameController.text);

@@ -1,10 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:histo_view/model/review.dart';
 
-class Review extends StatelessWidget {
-  const Review({Key? key}) : super(key: key);
+class ReviewWidget extends StatelessWidget {
+  final Review review;
+  const ReviewWidget({Key? key, required this.review}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    String title = review.name + " (" + review.periodDate + ")";
+    String location = review.locationCity + " (" + review.locationCountry + ")";
+    bool needHalfStar = halfStar(review.starRate);
+    //TODO: LIKE SYSTEM
+    //TODO: redirect user when his name it's clicked
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
       decoration: BoxDecoration(
@@ -25,14 +32,14 @@ class Review extends StatelessWidget {
             children: [
               // ICON/PHOTO + NAME
               Row(
-                children: const [
-                  Icon(Icons.person_sharp),
-                  SizedBox(
+                children: [
+                  const Icon(Icons.person_sharp),
+                  const SizedBox(
                     width: 5,
                   ),
                   Text(
-                    'Jordi Sintes Barberà',
-                    style: TextStyle(
+                    review.creatorName,
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
                       fontFamily: 'OpenSans',
@@ -41,9 +48,9 @@ class Review extends StatelessWidget {
                 ],
               ),
               // YEAR OF CREATION
-              const Text(
-                '31 DEC 2021',
-                style: TextStyle(
+              Text(
+                review.creationDate,
+                style: const TextStyle(
                   fontSize: 15,
                   fontFamily: 'OpenSans',
                 ),
@@ -52,12 +59,36 @@ class Review extends StatelessWidget {
           ),
           //STARS
           Row(
-            children: const [
-              Icon(Icons.star, color: Colors.yellowAccent),
-              Icon(Icons.star, color: Colors.yellowAccent),
-              Icon(Icons.star, color: Colors.yellowAccent),
-              Icon(Icons.star, color: Colors.yellowAccent),
-              Icon(Icons.star, color: Colors.yellowAccent)
+            children: [
+              for (var i = 0; i < review.starRate.toInt(); i++)
+                const Icon(
+                  Icons.star,
+                  color: Colors.yellowAccent,
+                  size: 30,
+                ),
+              // adds half star
+              if (needHalfStar)
+                const Icon(
+                  Icons.star_half,
+                  color: Colors.yellowAccent,
+                  size: 30,
+                ),
+              // adds void stars until 5 stars (having half star)
+              if (5 - review.starRate.toInt() > 0 && needHalfStar)
+                for (var i = 1; i < 5 - review.starRate.toInt(); i++)
+                  const Icon(
+                    Icons.star_border,
+                    color: Colors.yellowAccent,
+                    size: 30,
+                  ),
+              // adds void stars until 5 stars (not having half star)
+              if (5 - review.starRate.toInt() > 0 && !needHalfStar)
+                for (var i = 0; i < 5 - review.starRate.toInt(); i++)
+                  const Icon(
+                    Icons.star_border,
+                    color: Colors.yellowAccent,
+                    size: 30,
+                  ),
             ],
           ),
           const SizedBox(
@@ -65,10 +96,10 @@ class Review extends StatelessWidget {
           ),
           // TITLE AND PERIOD
           Row(
-            children: const [
+            children: [
               Text(
-                'Fall of Constantinople (1453)',
-                style: TextStyle(
+                title,
+                style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
                   fontFamily: 'OpenSans',
@@ -80,9 +111,9 @@ class Review extends StatelessWidget {
             height: 15,
           ),
           // DESCRIPTION
-          const Text(
-            'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
-            style: TextStyle(
+          Text(
+            review.description,
+            style: const TextStyle(
               fontFamily: 'OpenSans',
               fontSize: 14,
             ),
@@ -95,14 +126,14 @@ class Review extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Row(
-                children: const [
-                  Icon(Icons.location_pin),
-                  SizedBox(
+                children: [
+                  const Icon(Icons.location_pin),
+                  const SizedBox(
                     width: 5,
                   ),
                   Text(
-                    'Istambul (Turkey)',
-                    style: TextStyle(
+                    location,
+                    style: const TextStyle(
                       fontStyle: FontStyle.italic,
                       fontSize: 18,
                       fontFamily: 'OpenSans',
@@ -119,5 +150,13 @@ class Review extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // rounds values to .0 and 0.5
+  bool halfStar(double value) {
+    double newValue = value * 2;
+    newValue = newValue.round() / 2;
+    if (newValue > value) return true;
+    return false;
   }
 }

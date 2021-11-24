@@ -1,17 +1,19 @@
-import 'package:histo_view/model/services/firebase_service.dart';
+import 'package:histo_view/model/services/user_firebase_service.dart';
 import 'package:histo_view/model/user.dart';
 
 class RegisterViewModel {
+  // Register a user to the DB
   void registerUser(User user) {
-    FireBaseService().registerUserToBD(user);
+    UserFireBaseService().registerUserToBD(user);
   }
 
+  // Checks if any user has @param email
   Future<bool> userExists(String email) async {
     bool userExists = false;
-    final users = await FireBaseService().userAlreadyExist(email);
+    final users = await UserFireBaseService().userAlreadyExist();
     for (var user in users.docs) {
       var emailDB = user.data();
-      emailDB = emailDB['Email'];
+      emailDB = emailDB['email'];
       if (emailDB == email) {
         userExists = true;
         break;
@@ -21,12 +23,13 @@ class RegisterViewModel {
     return userExists;
   }
 
+  // Login
   Future<bool> login(User user) async {
     bool isLoginCorrect = false;
-    final usersDB = await FireBaseService().checkUserPassword(user);
+    final usersDB = await UserFireBaseService().checkUserPassword();
     for (var userDB in usersDB.docs) {
-      String emailDB = userDB.data()['Email'];
-      String passwordDB = userDB.data()['Password'];
+      String emailDB = userDB.data()['email'];
+      String passwordDB = userDB.data()['password'];
       if (emailDB == user.email && passwordDB == user.password) {
         isLoginCorrect = true;
         break;

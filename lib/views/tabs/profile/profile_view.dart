@@ -165,11 +165,11 @@ class ProfileView extends StatelessWidget {
       const SizedBox(
         height: 25,
       ),
-      const Review(),
+      //const ReviewWidget(),
       const SizedBox(
         height: 25,
       ),
-      const Review(),
+      //const ReviewWidget(),
       const SizedBox(
         height: 25,
       ),

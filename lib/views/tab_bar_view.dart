@@ -12,10 +12,10 @@ class TabBarAppView extends StatefulWidget {
 
 class _TabBarAppViewState extends State<TabBarAppView> {
   int _selectedIndex = 0;
-  static const List<Widget> _widgetOptions = <Widget>[
-    FavoriteView(),
-    MapView(),
-    ProfileView(isOwnProfile: true)
+  final List<Widget> _widgetOptions = <Widget>[
+    const FavoriteView(),
+    const MapView(),
+    const ProfileView(isOwnProfile: true)
   ];
 
   void _onItemTapped(int index) {
