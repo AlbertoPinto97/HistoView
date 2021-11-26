@@ -1,15 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:histo_view/model/review.dart';
+import 'package:histo_view/model/user.dart';
 import 'package:histo_view/shared/review_widget.dart';
+import 'package:histo_view/viewModel/profile_view_model.dart';
 
-class ProfileView extends StatelessWidget {
+class ProfileView extends StatefulWidget {
   final bool isOwnProfile;
 
   const ProfileView({Key? key, required this.isOwnProfile}) : super(key: key);
 
   @override
+  State<ProfileView> createState() => _ProfileViewState();
+}
+
+class _ProfileViewState extends State<ProfileView> {
+  List<Review> _reviewList = [];
+  final User _user = User();
+  final _viewModel = ProfileViewModel();
+
+  Future<void> getReviews(String email) async {
+    var result = await _viewModel.getUserReviews(email);
+    setState(() {
+      _reviewList = result;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getReviews(_user.email);
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String _text = isOwnProfile ? "Edit Profile" : "Follow";
-    double _buttonWidth = isOwnProfile ? 170 : 135;
+    final String _text = widget.isOwnProfile ? "Edit Profile" : "Follow";
+    final double _buttonWidth = widget.isOwnProfile ? 170 : 135;
     return ListView(children: [
       const SizedBox(
         height: 25,
@@ -24,8 +49,8 @@ class ProfileView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               //PROFILE'S NAME
-              const Text('Jordi Sintes Barberà',
-                  style: TextStyle(
+              Text(_user.userName,
+                  style: const TextStyle(
                       fontSize: 25,
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold)),
@@ -46,13 +71,13 @@ class ProfileView extends StatelessWidget {
                       backgroundColor: MaterialStateProperty.all(Colors.orange),
                     ),
                     onPressed: () {
-                      if (isOwnProfile) {
+                      if (widget.isOwnProfile) {
                         Navigator.pushNamed(context, '/editProfile');
                       }
                     },
                     child: Row(
                       children: [
-                        isOwnProfile
+                        widget.isOwnProfile
                             ? const Icon(
                                 Icons.edit,
                                 color: Colors.white,
@@ -102,15 +127,15 @@ class ProfileView extends StatelessWidget {
           ),
           //Followers
           Column(
-            children: const [
+            children: [
               Text(
-                '15',
-                style: TextStyle(
+                _user.followers.toString(),
+                style: const TextStyle(
                     fontSize: 20,
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold),
               ),
-              Text(
+              const Text(
                 'Followers',
                 style: TextStyle(fontSize: 17, fontFamily: 'OpenSans'),
               ),
@@ -118,15 +143,15 @@ class ProfileView extends StatelessWidget {
           ),
           //Following
           Column(
-            children: const [
+            children: [
               Text(
-                '25',
-                style: TextStyle(
+                _user.following.toString(),
+                style: const TextStyle(
                     fontSize: 20,
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold),
               ),
-              Text(
+              const Text(
                 'Following',
                 style: TextStyle(fontSize: 17, fontFamily: 'OpenSans'),
               ),
@@ -154,9 +179,9 @@ class ProfileView extends StatelessWidget {
       //PRESENTATION TEXT
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 15),
-        child: const Text(
-          'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
-          style: TextStyle(
+        child: Text(
+          _user.presentation,
+          style: const TextStyle(
             fontSize: 14,
             fontFamily: 'OpenSans',
           ),
@@ -165,14 +190,20 @@ class ProfileView extends StatelessWidget {
       const SizedBox(
         height: 25,
       ),
-      //const ReviewWidget(),
-      const SizedBox(
-        height: 25,
-      ),
-      //const ReviewWidget(),
-      const SizedBox(
-        height: 25,
-      ),
+      // User's reviews
+      ListView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          itemCount: _reviewList.length,
+          itemBuilder: (context, index) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: ReviewWidget(
+                review: _reviewList[index],
+                ownReview: true,
+              ),
+            );
+          })
     ]);
   }
 }

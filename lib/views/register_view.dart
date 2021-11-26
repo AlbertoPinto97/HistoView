@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:histo_view/viewModel/register_view_model.dart';
+import 'package:histo_view/viewModel/register_login_view_model.dart';
 import 'package:histo_view/model/user.dart';
 
 class RegisterView extends StatefulWidget {
@@ -22,7 +22,7 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameSurnameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final viewModel = RegisterViewModel();
+  final viewModel = RegisterLoginViewModel();
   bool _isEmailTaken = false;
 
   @override
@@ -225,7 +225,10 @@ class _RegisterViewState extends State<RegisterView> {
                           user.setParams(
                               _emailController.text,
                               _passwordController.text,
-                              _nameSurnameController.text);
+                              _nameSurnameController.text,
+                              0,
+                              0,
+                              '');
                           if (_registerFormKey.currentState!.validate()) {
                             _isEmailTaken = await viewModel
                                 .userExists(_emailController.text);

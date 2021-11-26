@@ -34,6 +34,7 @@ class _FavoriteViewState extends State<FavoriteView> {
     return ListView.builder(
         itemCount: _favoriteReviewList.length + 1,
         itemBuilder: (context, index) {
+          // Title first
           if (index == 0) {
             return const Padding(
               padding: EdgeInsets.symmetric(vertical: 20),
@@ -45,9 +46,13 @@ class _FavoriteViewState extends State<FavoriteView> {
                           fontWeight: FontWeight.bold))),
             );
           }
+          // Reviews after title
           return Container(
               padding: const EdgeInsets.only(bottom: 15),
-              child: ReviewWidget(review: _favoriteReviewList[index - 1]));
+              child: ReviewWidget(
+                review: _favoriteReviewList[index - 1],
+                ownReview: false,
+              ));
         });
   }
 }

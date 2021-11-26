@@ -3,7 +3,10 @@ import 'package:histo_view/model/review.dart';
 
 class ReviewWidget extends StatelessWidget {
   final Review review;
-  const ReviewWidget({Key? key, required this.review}) : super(key: key);
+  final bool ownReview;
+
+  const ReviewWidget({Key? key, required this.review, required this.ownReview})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -141,10 +144,11 @@ class ReviewWidget extends StatelessWidget {
                   )
                 ],
               ),
-              const Icon(
-                Icons.favorite,
-                color: Colors.red,
-              )
+              if (!ownReview)
+                const Icon(
+                  Icons.favorite,
+                  color: Colors.red,
+                )
             ],
           )
         ],

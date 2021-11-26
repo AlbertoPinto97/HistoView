@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:histo_view/model/user.dart';
-import 'package:histo_view/viewModel/register_view_model.dart';
+import 'package:histo_view/viewModel/register_login_view_model.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class _LoginViewState extends State<LoginView> {
     EmailValidator(errorText: 'Plese enter a valid email'),
   ]);
 
-  final viewModel = RegisterViewModel();
+  final viewModel = RegisterLoginViewModel();
 
   final TextEditingController _emailController = TextEditingController();
 

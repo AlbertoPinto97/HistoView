@@ -11,7 +11,7 @@ class FavoriteReviewViewModel {
       // id from user's favorite reviews
       int id = favoriteReview.data()['_review_id'];
       // getting favorite reviews
-      final reviews = await ReviewFireBaseService().getReview(id);
+      final reviews = await ReviewFireBaseService().getReviewById(id);
       for (var review in reviews.docs) {
         final reviewDB = review.data();
         reviewList.add(Review(

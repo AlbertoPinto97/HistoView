@@ -11,13 +11,14 @@ class TabBarAppView extends StatefulWidget {
 }
 
 class _TabBarAppViewState extends State<TabBarAppView> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 0; // index of the default screen for the bottom tabs
   final List<Widget> _widgetOptions = <Widget>[
-    const FavoriteView(),
-    const MapView(),
-    const ProfileView(isOwnProfile: true)
+    const FavoriteView(), // 0
+    const MapView(), // 1
+    const ProfileView(isOwnProfile: true) // 1
   ];
 
+  // changes the screen
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -36,14 +37,17 @@ class _TabBarAppViewState extends State<TabBarAppView> {
         bottomNavigationBar: BottomNavigationBar(
           backgroundColor: Colors.orange.shade100,
           items: const <BottomNavigationBarItem>[
+            // Favorite bottom bar
             BottomNavigationBarItem(
               icon: Icon(Icons.favorite),
               label: 'Favorite',
             ),
+            // Favorite map bar
             BottomNavigationBarItem(
               icon: Icon(Icons.map),
               label: 'Map',
             ),
+            // Favorite profile bar
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
               label: 'Profile',
