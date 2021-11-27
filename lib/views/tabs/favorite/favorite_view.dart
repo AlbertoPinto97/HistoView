@@ -17,7 +17,7 @@ class _FavoriteViewState extends State<FavoriteView> {
   final _viewModel = FavoriteReviewViewModel();
 
   Future<void> getFavoritesReviews(String email) async {
-    var result = await _viewModel.getFavoritesReviews(email);
+    List<Review> result = await _viewModel.getFavoritesReviews(email);
     setState(() {
       _favoriteReviewList = result;
     });

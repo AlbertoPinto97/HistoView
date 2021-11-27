@@ -5,7 +5,7 @@ class ReviewFireBaseService {
   getFavoritesReviews(String email) async {
     return await FirebaseFirestore.instance
         .collection('favoriteReviews')
-        .where('_user_email', isEqualTo: email)
+        .where('_userEmail', isEqualTo: email)
         .get();
   }
 

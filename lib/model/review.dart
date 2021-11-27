@@ -1,3 +1,5 @@
+import 'package:histo_view/model/user_profile.dart';
+
 class Review {
   String name;
   String creationDate;
@@ -8,7 +10,7 @@ class Review {
   double starRate;
   int countRate;
   String description;
-  String creatorName;
+  UserProfile creator;
 
   Review(
       this.name,
@@ -20,5 +22,5 @@ class Review {
       this.starRate,
       this.countRate,
       this.description,
-      this.creatorName);
+      this.creator);
 }

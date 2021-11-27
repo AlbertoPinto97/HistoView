@@ -34,21 +34,33 @@ class ReviewWidget extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               // ICON/PHOTO + NAME
-              Row(
-                children: [
-                  const Icon(Icons.person_sharp),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  Text(
-                    review.creatorName,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 15,
-                      fontFamily: 'OpenSans',
+              GestureDetector(
+                onTap: () {
+                  if (!ownReview) {
+                    // go to creator's profile
+                    Navigator.pushNamed(context, '/profile',
+                        arguments: review.creator);
+                  }
+                },
+                child: Row(
+                  children: [
+                    const Icon(Icons.person_sharp),
+                    const SizedBox(
+                      width: 5,
                     ),
-                  ),
-                ],
+                    SizedBox(
+                      width: 200,
+                      child: Text(
+                        review.creator.userName,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                          fontFamily: 'OpenSans',
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               // YEAR OF CREATION
               Text(

@@ -4,6 +4,7 @@ import 'package:histo_view/views/account_created_view.dart';
 import 'package:histo_view/views/forgot_password_view.dart';
 import 'package:histo_view/views/login_view.dart';
 import 'package:histo_view/views/register_view.dart';
+import 'package:histo_view/views/tabs/profile/profile_view.dart';
 import 'package:histo_view/views/tabs/tab_bar_view.dart';
 import 'package:histo_view/views/tabs/profile/edit_profile_view.dart';
 
@@ -34,6 +35,9 @@ class MyApp extends StatelessWidget {
         '/tabBar': (context) => const TabBarAppView(),
         '/editProfile': (context) => EditProfileView(),
         '/accountCreated': (context) => const AccountCreatedView(),
+        '/profile': (context) => const ProfileView(
+              isOwnProfile: false,
+            ),
       },
     );
   }

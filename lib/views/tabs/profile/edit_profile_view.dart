@@ -79,7 +79,7 @@ class EditProfileView extends StatelessWidget {
                           //updates user's profile
                           viewModel.updateUserProfile(_user);
                         }
-                        Navigator.pop(context);
+                        Navigator.pushNamed(context, '/tabBar', arguments: 2);
                       }
                     },
                   ),
