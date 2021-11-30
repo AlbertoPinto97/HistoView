@@ -4,7 +4,10 @@ import 'package:histo_view/model/user.dart';
 // class used to connect to the DB and manage users
 class UserFireBaseService {
   void addUser(User user) {
-    FirebaseFirestore.instance.collection('usersRegistered').add({
+    FirebaseFirestore.instance
+        .collection('usersRegistered')
+        .doc(user.email)
+        .set({
       '_email': user.email,
       'name': user.userName,
       'password': user.password,

@@ -19,10 +19,6 @@ class EditProfileView extends StatelessWidget {
     RequiredValidator(errorText: 'Email is required'),
     EmailValidator(errorText: 'Plese enter a valid email'),
   ]);
-  final _userNameValidator =
-      MultiValidator([RequiredValidator(errorText: 'Email is required')]);
-  final _presentationValidator =
-      MultiValidator([RequiredValidator(errorText: 'Email is required')]);
 
   @override
   Widget build(BuildContext context) {
@@ -116,7 +112,7 @@ class EditProfileView extends StatelessWidget {
                 ),
               ),
               TextFormField(
-                validator: _userNameValidator,
+                validator: RequiredValidator(errorText: 'Name is required'),
                 controller: _userNameController,
                 style: const TextStyle(fontSize: 15),
                 decoration: const InputDecoration(isDense: true),
@@ -159,7 +155,8 @@ class EditProfileView extends StatelessWidget {
                 height: 10,
               ),
               TextFormField(
-                validator: _presentationValidator,
+                validator:
+                    RequiredValidator(errorText: 'Presentation is required'),
                 controller: _presentationController,
                 minLines: 10,
                 maxLines: 10,

@@ -52,6 +52,7 @@ class _FavoriteViewState extends State<FavoriteView> {
               child: ReviewWidget(
                 review: _favoriteReviewList[index - 1],
                 ownReview: false,
+                isMap: false,
               ));
         });
   }

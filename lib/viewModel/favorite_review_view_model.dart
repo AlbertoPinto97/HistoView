@@ -26,16 +26,19 @@ class FavoriteReviewViewModel {
             userDB['followers'], userDB['following'], userDB['presentation']);
         // A favorite review
         reviewList.add(Review(
-            reviewDB['name'],
-            reviewDB['creationDate'],
-            reviewDB['periodDate'],
-            reviewDB['locationCity'],
-            reviewDB['locationCountry'],
-            reviewDB['_email'],
-            reviewDB['starRate'].toDouble(),
-            reviewDB['countRate'],
-            reviewDB['description'],
-            creator));
+          reviewDB['name'],
+          reviewDB['creationDate'],
+          reviewDB['periodDate'],
+          reviewDB['locationCity'],
+          reviewDB['locationCountry'],
+          reviewDB['_email'],
+          reviewDB['starRate'].toDouble(),
+          reviewDB['countRate'],
+          reviewDB['description'],
+          creator,
+          reviewDB['latitude'],
+          reviewDB['longitude'],
+        ));
       }
     }
     return reviewList;

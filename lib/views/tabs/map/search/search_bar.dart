@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class SearchBar extends StatelessWidget {
   final bool isSearching;
   final Function(bool val) callback;
+  final TextEditingController searchTerm;
 
-  const SearchBar(this.isSearching, this.callback, {Key? key})
+  const SearchBar(this.isSearching, this.callback, this.searchTerm, {Key? key})
       : super(key: key);
 
   @override
@@ -50,6 +51,7 @@ class SearchBar extends StatelessWidget {
             width: searchBoxInnerWidth,
             child: SizedBox(
               child: TextField(
+                controller: searchTerm,
                 onTap: () => callback(true),
                 keyboardType: TextInputType.visiblePassword,
                 decoration: InputDecoration(

@@ -27,7 +27,9 @@ class ProfileViewModel {
           reviewDB['starRate'].toDouble(),
           reviewDB['countRate'],
           reviewDB['description'],
-          creator));
+          creator,
+          reviewDB['latitude'],
+          reviewDB['longitude']));
     }
     return reviewList;
   }

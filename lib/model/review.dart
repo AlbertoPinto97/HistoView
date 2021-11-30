@@ -11,6 +11,8 @@ class Review {
   int countRate;
   String description;
   UserProfile creator;
+  double latitude;
+  double longitude;
 
   Review(
       this.name,
@@ -22,5 +24,7 @@ class Review {
       this.starRate,
       this.countRate,
       this.description,
-      this.creator);
+      this.creator,
+      this.latitude,
+      this.longitude);
 }

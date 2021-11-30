@@ -4,17 +4,24 @@ import 'package:histo_view/model/review.dart';
 class ReviewWidget extends StatelessWidget {
   final Review review;
   final bool ownReview;
+  final bool isMap;
+  final Function()? callback;
 
-  const ReviewWidget({Key? key, required this.review, required this.ownReview})
+  const ReviewWidget(
+      {Key? key,
+      required this.review,
+      required this.ownReview,
+      required this.isMap,
+      this.callback = _dummyOnFocusChange})
       : super(key: key);
+
+  static _dummyOnFocusChange() {}
 
   @override
   Widget build(BuildContext context) {
     String title = review.name + " (" + review.periodDate + ")";
     String location = review.locationCity + " (" + review.locationCountry + ")";
     bool needHalfStar = halfStar(review.starRate);
-    //TODO: LIKE SYSTEM
-    //TODO: redirect user when his name it's clicked
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
       decoration: BoxDecoration(
@@ -30,6 +37,12 @@ class ReviewWidget extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(45))),
       child: Column(
         children: [
+          if (isMap)
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                  onPressed: callback, icon: const Icon(Icons.close)),
+            ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -49,7 +62,7 @@ class ReviewWidget extends StatelessWidget {
                       width: 5,
                     ),
                     SizedBox(
-                      width: 200,
+                      width: 150,
                       child: Text(
                         review.creator.userName,
                         style: const TextStyle(
@@ -137,24 +150,23 @@ class ReviewWidget extends StatelessWidget {
             height: 10,
           ),
           // LOCATION AND FAVORITE
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.location_pin),
-                  const SizedBox(
-                    width: 5,
+              const Icon(Icons.location_pin),
+              const SizedBox(
+                width: 5,
+              ),
+              SizedBox(
+                width: !ownReview ? 180 : 200,
+                child: Text(
+                  location,
+                  style: const TextStyle(
+                    fontStyle: FontStyle.italic,
+                    fontSize: 18,
+                    fontFamily: 'OpenSans',
                   ),
-                  Text(
-                    location,
-                    style: const TextStyle(
-                      fontStyle: FontStyle.italic,
-                      fontSize: 18,
-                      fontFamily: 'OpenSans',
-                    ),
-                  )
-                ],
+                ),
               ),
               if (!ownReview)
                 const Icon(
@@ -162,7 +174,7 @@ class ReviewWidget extends StatelessWidget {
                   color: Colors.red,
                 )
             ],
-          )
+          ),
         ],
       ),
     );

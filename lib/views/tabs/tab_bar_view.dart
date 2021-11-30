@@ -11,7 +11,7 @@ class TabBarAppView extends StatefulWidget {
 }
 
 class _TabBarAppViewState extends State<TabBarAppView> {
-  int _selectedIndex = 0; // index of the default screen for the bottom tabs
+  int _selectedIndex = 1; // index of the default screen for the bottom tabs
   final List<Widget> _widgetOptions = <Widget>[
     const FavoriteView(), // 0
     const MapView(), // 1

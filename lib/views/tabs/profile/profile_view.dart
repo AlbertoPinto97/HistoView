@@ -303,6 +303,7 @@ class _ProfileViewState extends State<ProfileView> {
                   child: ReviewWidget(
                     review: _reviewList[index],
                     ownReview: true,
+                    isMap: false,
                   ),
                 );
               })
@@ -340,7 +341,6 @@ class _ProfileViewState extends State<ProfileView> {
               // BUTTON EDIT PROFILE
               SizedBox(
                 height: 50,
-                width: 170,
                 child: ElevatedButton(
                     style: ButtonStyle(
                       elevation: MaterialStateProperty.all(20),
@@ -474,6 +474,7 @@ class _ProfileViewState extends State<ProfileView> {
               child: ReviewWidget(
                 review: _reviewList[index],
                 ownReview: true,
+                isMap: false,
               ),
             );
           })
