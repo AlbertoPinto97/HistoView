@@ -1,7 +1,7 @@
 import 'package:histo_view/model/services/review_firebase_service.dart';
 import 'package:histo_view/model/review.dart';
 import 'package:histo_view/model/services/user_firebase_service.dart';
-import 'package:histo_view/model/user_profile.dart';
+import 'package:histo_view/model/user.dart';
 
 class FavoriteReviewViewModel {
   Future<List<Review>> getFavoritesReviews(String email) async {
@@ -22,10 +22,11 @@ class FavoriteReviewViewModel {
         final user =
             await UserFireBaseService().getUserByEmail(reviewDB['_email']);
         var userDB = user.docs[0].data();
-        UserProfile creator = UserProfile(userDB['_email'], userDB['name'],
+        User creator = User(userDB['_email'], userDB['name'],
             userDB['followers'], userDB['following'], userDB['presentation']);
         // A favorite review
         reviewList.add(Review(
+          reviewDB['_id'],
           reviewDB['name'],
           reviewDB['creationDate'],
           reviewDB['periodDate'],
@@ -42,5 +43,13 @@ class FavoriteReviewViewModel {
       }
     }
     return reviewList;
+  }
+
+  void addFavoriteReview(String email, int id) {
+    ReviewFireBaseService().addFavoriteReview(email, id);
+  }
+
+  void removeFavoriteReview(String email, int id) {
+    ReviewFireBaseService().removeFavoriteReview(email, id);
   }
 }

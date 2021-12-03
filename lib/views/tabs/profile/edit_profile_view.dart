@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:histo_view/model/user.dart';
+import 'package:histo_view/model/current_user.dart';
 import 'package:histo_view/viewModel/profile_view_model.dart';
 
 class EditProfileView extends StatelessWidget {
   EditProfileView({Key? key}) : super(key: key);
 
-  final viewModel = ProfileViewModel();
-  final _user = User();
+  final _viewModel = ProfileViewModel();
+  final _currentUser = CurrentUser();
 
   final _profileFormKey = GlobalKey<FormState>();
 
@@ -22,9 +22,9 @@ class EditProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _emailController.text = _user.email;
-    _userNameController.text = _user.userName;
-    _presentationController.text = _user.presentation;
+    _emailController.text = _currentUser.email;
+    _userNameController.text = _currentUser.userName;
+    _presentationController.text = _currentUser.presentation;
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
@@ -46,6 +46,7 @@ class EditProfileView extends StatelessWidget {
                       size: 35,
                     ),
                     onPressed: () {
+                      //cancel changes
                       Navigator.pop(context);
                     },
                   ),
@@ -63,19 +64,21 @@ class EditProfileView extends StatelessWidget {
                       size: 35,
                     ),
                     onPressed: () {
+                      // accept changes
                       if (_profileFormKey.currentState!.validate()) {
                         // checks if any field has been modified
-                        if (_user.userName != _userNameController.text ||
-                            _user.email != _emailController.text ||
-                            _user.presentation !=
+                        if (_currentUser.userName != _userNameController.text ||
+                            _currentUser.email != _emailController.text ||
+                            _currentUser.presentation !=
                                 _presentationController.text) {
-                          _user.userName = _userNameController.text;
-                          _user.email = _emailController.text;
-                          _user.presentation = _presentationController.text;
+                          _currentUser.userName = _userNameController.text;
+                          _currentUser.email = _emailController.text;
+                          _currentUser.presentation =
+                              _presentationController.text;
                           //updates user's profile
-                          viewModel.updateUserProfile(_user);
+                          _viewModel.updateUserProfile(_currentUser);
                         }
-                        Navigator.pushNamed(context, '/tabBar', arguments: 2);
+                        Navigator.pop(context);
                       }
                     },
                   ),

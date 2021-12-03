@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:histo_view/model/review.dart';
+import 'package:histo_view/model/current_user.dart';
 import 'package:histo_view/model/user.dart';
-import 'package:histo_view/model/user_profile.dart';
 import 'package:histo_view/shared/review_widget.dart';
 import 'package:histo_view/viewModel/profile_view_model.dart';
 
@@ -17,21 +17,35 @@ class ProfileView extends StatefulWidget {
 class _ProfileViewState extends State<ProfileView> {
   final GlobalKey<NavigatorState> _key = GlobalKey();
   List<Review> _reviewList = [];
-  final User _user = User();
-  late UserProfile _userProfile;
+  final CurrentUser _currentUser = CurrentUser();
+  late User _user;
   final _viewModel = ProfileViewModel();
   int _numberReviews = 0;
   bool _isFollowed = false;
 
-  Future<void> getReviews() async {
+  @override
+  Widget build(BuildContext context) {
+    _getReviews();
+    if (!widget.isOwnProfile) {
+      _checkIfUserIsFollowed();
+      return _otherProfile();
+    }
+    return _ownProfile();
+  }
+
+  Future<void> _getReviews() async {
     if (ModalRoute.of(context)!.settings.arguments != null &&
         !widget.isOwnProfile) {
-      _userProfile = ModalRoute.of(context)!.settings.arguments as UserProfile;
+      _user = ModalRoute.of(context)!.settings.arguments as User;
     } else {
-      _userProfile = UserProfile(_user.email, _user.userName, _user.followers,
-          _user.following, _user.presentation);
+      _user = User(
+          _currentUser.email,
+          _currentUser.userName,
+          _currentUser.followers,
+          _currentUser.following,
+          _currentUser.presentation);
     }
-    var result = await _viewModel.getUserReviews(_userProfile);
+    var result = await _viewModel.getUserReviews(_user);
     if (mounted) {
       setState(() {
         _reviewList = result;
@@ -40,8 +54,8 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  Future<void> checkIfUserIsFollowed() async {
-    bool result = await _viewModel.isFollowing(_user.email, _userProfile.email);
+  Future<void> _checkIfUserIsFollowed() async {
+    bool result = await _viewModel.isFollowing(_currentUser.email, _user.email);
     if (mounted) {
       setState(() {
         _isFollowed = result;
@@ -49,17 +63,7 @@ class _ProfileViewState extends State<ProfileView> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    getReviews();
-    if (!widget.isOwnProfile) {
-      checkIfUserIsFollowed();
-      return otherProfile();
-    }
-    return ownProfile();
-  }
-
-  Widget otherProfile() {
+  Widget _otherProfile() {
     return WillPopScope(
       onWillPop: () async {
         _key.currentState?.maybePop();
@@ -99,7 +103,7 @@ class _ProfileViewState extends State<ProfileView> {
                   //PROFILE'S NAME
                   SizedBox(
                     width: 220,
-                    child: Text(_userProfile.userName,
+                    child: Text(_user.userName,
                         style: const TextStyle(
                             fontSize: 20,
                             fontFamily: 'OpenSans',
@@ -150,12 +154,12 @@ class _ProfileViewState extends State<ProfileView> {
                                     onPressed: () {
                                       //unfollow user
                                       _viewModel.unfollowUser(
-                                          _user.email, _userProfile.email);
-                                      if (_userProfile.followers > 0) {
-                                        _userProfile.followers--;
+                                          _currentUser.email, _user.email);
+                                      if (_user.followers > 0) {
+                                        _user.followers--;
                                       }
-                                      if (_user.following > 0) {
-                                        _user.following--;
+                                      if (_currentUser.following > 0) {
+                                        _currentUser.following--;
                                       }
                                       _isFollowed = false;
                                       Navigator.of(context).pop(true);
@@ -168,9 +172,9 @@ class _ProfileViewState extends State<ProfileView> {
                           } else {
                             // follow user
                             _viewModel.followUser(
-                                _user.email, _userProfile.email);
-                            _userProfile.followers++;
-                            _user.following++;
+                                _currentUser.email, _user.email);
+                            _user.followers++;
+                            _currentUser.following++;
                             _isFollowed = true;
                           }
                         },
@@ -231,7 +235,7 @@ class _ProfileViewState extends State<ProfileView> {
               Column(
                 children: [
                   Text(
-                    _userProfile.followers.toString(),
+                    _user.followers.toString(),
                     style: const TextStyle(
                         fontSize: 20,
                         fontFamily: 'OpenSans',
@@ -247,7 +251,7 @@ class _ProfileViewState extends State<ProfileView> {
               Column(
                 children: [
                   Text(
-                    _userProfile.following.toString(),
+                    _user.following.toString(),
                     style: const TextStyle(
                         fontSize: 20,
                         fontFamily: 'OpenSans',
@@ -282,7 +286,7 @@ class _ProfileViewState extends State<ProfileView> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 15),
             child: Text(
-              _userProfile.presentation,
+              _user.presentation,
               style: const TextStyle(
                 fontSize: 14,
                 fontFamily: 'OpenSans',
@@ -303,6 +307,7 @@ class _ProfileViewState extends State<ProfileView> {
                   child: ReviewWidget(
                     review: _reviewList[index],
                     ownReview: true,
+                    isFavorite: false,
                     isMap: false,
                   ),
                 );
@@ -312,7 +317,7 @@ class _ProfileViewState extends State<ProfileView> {
     );
   }
 
-  Widget ownProfile() {
+  Widget _ownProfile() {
     return ListView(children: [
       const SizedBox(
         height: 25,
@@ -329,7 +334,7 @@ class _ProfileViewState extends State<ProfileView> {
               //PROFILE'S NAME
               SizedBox(
                 width: 220,
-                child: Text(_userProfile.userName,
+                child: Text(_user.userName,
                     style: const TextStyle(
                         fontSize: 24,
                         fontFamily: 'OpenSans',
@@ -402,7 +407,7 @@ class _ProfileViewState extends State<ProfileView> {
           Column(
             children: [
               Text(
-                _userProfile.followers.toString(),
+                _user.followers.toString(),
                 style: const TextStyle(
                     fontSize: 20,
                     fontFamily: 'OpenSans',
@@ -418,7 +423,7 @@ class _ProfileViewState extends State<ProfileView> {
           Column(
             children: [
               Text(
-                _userProfile.following.toString(),
+                _user.following.toString(),
                 style: const TextStyle(
                     fontSize: 20,
                     fontFamily: 'OpenSans',
@@ -453,7 +458,7 @@ class _ProfileViewState extends State<ProfileView> {
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 15),
         child: Text(
-          _userProfile.presentation,
+          _user.presentation,
           style: const TextStyle(
             fontSize: 14,
             fontFamily: 'OpenSans',
@@ -475,6 +480,7 @@ class _ProfileViewState extends State<ProfileView> {
                 review: _reviewList[index],
                 ownReview: true,
                 isMap: false,
+                isFavorite: false,
               ),
             );
           })

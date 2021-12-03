@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:histo_view/model/user.dart';
+import 'package:histo_view/model/current_user.dart';
 
 // class used to connect to the DB and manage users
 class UserFireBaseService {
-  void addUser(User user) {
+  void createUser(CurrentUser user) {
     FirebaseFirestore.instance
         .collection('usersRegistered')
         .doc(user.email)
@@ -17,8 +17,8 @@ class UserFireBaseService {
     });
   }
 
-  updateUserProfile(User user) {
-    return FirebaseFirestore.instance
+  void updateUserProfile(CurrentUser user) {
+    FirebaseFirestore.instance
         .collection('usersRegistered')
         .doc(user.email)
         .update({

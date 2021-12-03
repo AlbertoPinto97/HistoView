@@ -1,27 +1,66 @@
 import 'package:flutter/material.dart';
+import 'package:histo_view/model/current_user.dart';
 import 'package:histo_view/model/review.dart';
+import 'package:histo_view/viewModel/favorite_review_view_model.dart';
 
-class ReviewWidget extends StatelessWidget {
+class ReviewWidget extends StatefulWidget {
   final Review review;
   final bool ownReview;
   final bool isMap;
+  final bool isFavorite;
   final Function()? callback;
+  final Function()? refreshParent;
 
   const ReviewWidget(
       {Key? key,
       required this.review,
       required this.ownReview,
       required this.isMap,
-      this.callback = _dummyOnFocusChange})
+      required this.isFavorite,
+      this.callback = _dummyOnFocusChange,
+      this.refreshParent})
       : super(key: key);
 
   static _dummyOnFocusChange() {}
 
   @override
+  State<ReviewWidget> createState() => _ReviewWidgetState();
+}
+
+class _ReviewWidgetState extends State<ReviewWidget> {
+  late bool _isFavorite;
+  final FavoriteReviewViewModel _viewModel = FavoriteReviewViewModel();
+  final CurrentUser _user = CurrentUser();
+
+  @override
+  void initState() {
+    super.initState();
+    _isFavorite = widget.isFavorite;
+  }
+
+  void addToFavorite() {
+    _viewModel.addFavoriteReview(_user.email, widget.review.id);
+    _isFavorite = true;
+    setState(() {});
+  }
+
+  void removeFromFavorite() {
+    if (widget.refreshParent == null) {
+      _isFavorite = false;
+    } else {
+      widget.refreshParent!();
+    }
+
+    _viewModel.removeFavoriteReview(_user.email, widget.review.id);
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String title = review.name + " (" + review.periodDate + ")";
-    String location = review.locationCity + " (" + review.locationCountry + ")";
-    bool needHalfStar = halfStar(review.starRate);
+    String _title = widget.review.name + " (" + widget.review.periodDate + ")";
+    String _location =
+        widget.review.locationCity + " (" + widget.review.locationCountry + ")";
+    bool needHalfStar = halfStar(widget.review.starRate);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
       decoration: BoxDecoration(
@@ -37,11 +76,11 @@ class ReviewWidget extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(45))),
       child: Column(
         children: [
-          if (isMap)
+          if (widget.isMap)
             Align(
               alignment: Alignment.centerRight,
               child: IconButton(
-                  onPressed: callback, icon: const Icon(Icons.close)),
+                  onPressed: widget.callback, icon: const Icon(Icons.close)),
             ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -49,10 +88,10 @@ class ReviewWidget extends StatelessWidget {
               // ICON/PHOTO + NAME
               GestureDetector(
                 onTap: () {
-                  if (!ownReview) {
+                  if (!widget.ownReview) {
                     // go to creator's profile
                     Navigator.pushNamed(context, '/profile',
-                        arguments: review.creator);
+                        arguments: widget.review.creator);
                   }
                 },
                 child: Row(
@@ -64,7 +103,7 @@ class ReviewWidget extends StatelessWidget {
                     SizedBox(
                       width: 150,
                       child: Text(
-                        review.creator.userName,
+                        widget.review.creator.userName,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
@@ -77,7 +116,7 @@ class ReviewWidget extends StatelessWidget {
               ),
               // YEAR OF CREATION
               Text(
-                review.creationDate,
+                widget.review.creationDate,
                 style: const TextStyle(
                   fontSize: 15,
                   fontFamily: 'OpenSans',
@@ -88,7 +127,7 @@ class ReviewWidget extends StatelessWidget {
           //STARS
           Row(
             children: [
-              for (var i = 0; i < review.starRate.toInt(); i++)
+              for (var i = 0; i < widget.review.starRate.toInt(); i++)
                 const Icon(
                   Icons.star,
                   color: Colors.yellowAccent,
@@ -102,16 +141,16 @@ class ReviewWidget extends StatelessWidget {
                   size: 30,
                 ),
               // adds void stars until 5 stars (having half star)
-              if (5 - review.starRate.toInt() > 0 && needHalfStar)
-                for (var i = 1; i < 5 - review.starRate.toInt(); i++)
+              if (5 - widget.review.starRate.toInt() > 0 && needHalfStar)
+                for (var i = 1; i < 5 - widget.review.starRate.toInt(); i++)
                   const Icon(
                     Icons.star_border,
                     color: Colors.yellowAccent,
                     size: 30,
                   ),
               // adds void stars until 5 stars (not having half star)
-              if (5 - review.starRate.toInt() > 0 && !needHalfStar)
-                for (var i = 0; i < 5 - review.starRate.toInt(); i++)
+              if (5 - widget.review.starRate.toInt() > 0 && !needHalfStar)
+                for (var i = 0; i < 5 - widget.review.starRate.toInt(); i++)
                   const Icon(
                     Icons.star_border,
                     color: Colors.yellowAccent,
@@ -126,7 +165,7 @@ class ReviewWidget extends StatelessWidget {
           Row(
             children: [
               Text(
-                title,
+                _title,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -140,7 +179,7 @@ class ReviewWidget extends StatelessWidget {
           ),
           // DESCRIPTION
           Text(
-            review.description,
+            widget.review.description,
             style: const TextStyle(
               fontFamily: 'OpenSans',
               fontSize: 14,
@@ -150,7 +189,6 @@ class ReviewWidget extends StatelessWidget {
             height: 10,
           ),
           // LOCATION AND FAVORITE
-
           Row(
             children: [
               const Icon(Icons.location_pin),
@@ -158,9 +196,9 @@ class ReviewWidget extends StatelessWidget {
                 width: 5,
               ),
               SizedBox(
-                width: !ownReview ? 180 : 200,
+                width: !widget.ownReview ? 180 : 200,
                 child: Text(
-                  location,
+                  _location,
                   style: const TextStyle(
                     fontStyle: FontStyle.italic,
                     fontSize: 18,
@@ -168,11 +206,22 @@ class ReviewWidget extends StatelessWidget {
                   ),
                 ),
               ),
-              if (!ownReview)
-                const Icon(
-                  Icons.favorite,
-                  color: Colors.red,
-                )
+              if (!widget.ownReview && _isFavorite)
+                IconButton(
+                  icon: const Icon(
+                    Icons.favorite,
+                    color: Colors.red,
+                  ),
+                  onPressed: removeFromFavorite,
+                ),
+              if (!widget.ownReview && !_isFavorite)
+                IconButton(
+                  icon: const Icon(
+                    Icons.favorite_border,
+                    color: Colors.red,
+                  ),
+                  onPressed: addToFavorite,
+                ),
             ],
           ),
         ],
@@ -180,7 +229,6 @@ class ReviewWidget extends StatelessWidget {
     );
   }
 
-  // rounds values to .0 and 0.5
   bool halfStar(double value) {
     double newValue = value * 2;
     newValue = newValue.round() / 2;

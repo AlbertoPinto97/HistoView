@@ -10,8 +10,8 @@ class SearchBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double searchBoxOutterWidth = isSearching ? 280 : 300;
-    double searchBoxInnerWidth = isSearching ? 260 : 270;
+    double _searchBoxOutterWidth = isSearching ? 280 : 300;
+    double _searchBoxInnerWidth = isSearching ? 260 : 270;
     return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
       isSearching
           ? SizedBox(
@@ -33,7 +33,7 @@ class SearchBar extends StatelessWidget {
             ),
       Container(
         height: 50,
-        width: searchBoxOutterWidth,
+        width: _searchBoxOutterWidth,
         decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -48,7 +48,7 @@ class SearchBar extends StatelessWidget {
         child: Align(
           alignment: Alignment.center,
           child: SizedBox(
-            width: searchBoxInnerWidth,
+            width: _searchBoxInnerWidth,
             child: SizedBox(
               child: TextField(
                 controller: searchTerm,

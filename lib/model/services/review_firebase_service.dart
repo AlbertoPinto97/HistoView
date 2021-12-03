@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:histo_view/model/review.dart';
 
-// class used to connect to the DB and manage reviews
+// class used to connect to the DB and manage reviews/favorites reviews
 class ReviewFireBaseService {
   getAllReviews() async {
     return await FirebaseFirestore.instance.collection('reviews').get();
@@ -18,6 +18,13 @@ class ReviewFireBaseService {
     return await FirebaseFirestore.instance
         .collection('reviews')
         .where('_id', isEqualTo: id)
+        .get();
+  }
+
+  getFavoriteReviewById(String email, int id) async {
+    return await FirebaseFirestore.instance
+        .collection('favoriteReviews')
+        .doc(email + '_' + id.toString())
         .get();
   }
 
@@ -50,5 +57,22 @@ class ReviewFireBaseService {
       'latitude': review.latitude,
       'longitude': review.longitude
     });
+  }
+
+  void addFavoriteReview(String email, int id) {
+    FirebaseFirestore.instance
+        .collection('favoriteReviews')
+        .doc(email + '_' + id.toString())
+        .set({
+      '_userEmail': email,
+      '_reviewId': id,
+    });
+  }
+
+  void removeFavoriteReview(String email, int id) {
+    FirebaseFirestore.instance
+        .collection('favoriteReviews')
+        .doc(email + '_' + id.toString())
+        .delete();
   }
 }

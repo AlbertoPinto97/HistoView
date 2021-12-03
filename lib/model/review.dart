@@ -1,6 +1,8 @@
-import 'package:histo_view/model/user_profile.dart';
+import 'package:histo_view/model/user.dart';
 
+//Model used for Reviews
 class Review {
+  int id;
   String name;
   String creationDate;
   String periodDate;
@@ -10,11 +12,12 @@ class Review {
   double starRate;
   int countRate;
   String description;
-  UserProfile creator;
+  User creator;
   double latitude;
   double longitude;
 
   Review(
+      this.id,
       this.name,
       this.creationDate,
       this.periodDate,

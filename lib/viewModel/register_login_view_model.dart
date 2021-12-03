@@ -1,10 +1,10 @@
 import 'package:histo_view/model/services/user_firebase_service.dart';
-import 'package:histo_view/model/user.dart';
+import 'package:histo_view/model/current_user.dart';
 
 class RegisterLoginViewModel {
   // Register a user to the DB
-  void registerUser(User user) {
-    UserFireBaseService().addUser(user);
+  void registerUser(CurrentUser user) {
+    UserFireBaseService().createUser(user);
   }
 
   // Checks if any user has @param email
@@ -19,7 +19,7 @@ class RegisterLoginViewModel {
   }
 
   // Login system
-  Future<bool> login(User user) async {
+  Future<bool> login(CurrentUser user) async {
     bool isLoginCorrect = false;
     final usersDB = await UserFireBaseService().getUserByEmail(user.email);
     for (var userDB in usersDB.docs) {

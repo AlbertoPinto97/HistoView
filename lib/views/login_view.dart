@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
-import 'package:histo_view/model/user.dart';
+import 'package:histo_view/model/current_user.dart';
 import 'package:histo_view/viewModel/register_login_view_model.dart';
 
 class LoginView extends StatefulWidget {
@@ -18,13 +18,13 @@ class _LoginViewState extends State<LoginView> {
     EmailValidator(errorText: 'Plese enter a valid email'),
   ]);
 
-  final viewModel = RegisterLoginViewModel();
+  final _viewModel = RegisterLoginViewModel();
 
   final TextEditingController _emailController = TextEditingController();
 
   final TextEditingController _passwordController = TextEditingController();
 
-  bool correctLogin = true;
+  bool _correctLogin = true;
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +112,7 @@ class _LoginViewState extends State<LoginView> {
                   const SizedBox(
                     height: 30,
                   ),
-                  if (!correctLogin)
+                  if (!_correctLogin)
                     const Text(
                       'Incorrect login, please try again.',
                       style: TextStyle(
@@ -120,7 +120,7 @@ class _LoginViewState extends State<LoginView> {
                           fontSize: 20,
                           fontFamily: 'Open Sans'),
                     ),
-                  if (!correctLogin)
+                  if (!_correctLogin)
                     const SizedBox(
                       height: 20,
                     ),
@@ -160,12 +160,12 @@ class _LoginViewState extends State<LoginView> {
                               MaterialStateProperty.all(Colors.orange),
                         ),
                         onPressed: () async {
-                          User user = User();
+                          CurrentUser user = CurrentUser();
                           user.setEmailPassword(
                               _emailController.text, _passwordController.text);
                           if (_loginFormKey.currentState!.validate()) {
-                            correctLogin = await viewModel.login(user);
-                            if (correctLogin) {
+                            _correctLogin = await _viewModel.login(user);
+                            if (_correctLogin) {
                               Navigator.pushNamed(context, '/tabBar');
                             }
                           }

@@ -6,8 +6,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:histo_view/model/review.dart';
+import 'package:histo_view/model/current_user.dart';
 import 'package:histo_view/model/user.dart';
-import 'package:histo_view/model/user_profile.dart';
 import 'package:histo_view/shared/review_widget.dart';
 import 'package:histo_view/viewModel/map_view_model.dart';
 import 'package:intl/intl.dart';
@@ -23,13 +23,16 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   final Completer<GoogleMapController> _controller = Completer();
   final _mapFormKey = GlobalKey<FormState>();
+  bool _isLoadingScreen = true;
   bool _isSearching = false;
   bool _isLoadCurrentLocation = false;
   bool _isWatchingReview = false;
   bool _isOwnReview = false;
+  bool _isFavorite = false;
+  bool _isStatusLocationGranted = false;
   late Review _currentReview;
   final _viewModel = MapViewModel();
-  final User _user = User();
+  final CurrentUser _user = CurrentUser();
   late LatLng _currentLatLng;
   final Set<Marker> _markers = {};
   List<Review> _reviewList = [];
@@ -43,34 +46,55 @@ class _MapViewState extends State<MapView> {
   @override
   void initState() {
     super.initState();
-    getCurrentLocation();
-    setReviewMarks();
+    _getCurrentLocation();
+    _setReviewMarks();
   }
 
-  void setReviewMarks() async {
+  void _setReviewMarks() async {
     // gets all reviews
     _reviewList = await _viewModel.getAllReviews();
     for (Review review in _reviewList) {
-      createMark(LatLng(review.latitude, review.longitude), review.name,
+      _createMark(LatLng(review.latitude, review.longitude), review.name,
           review.creator.userName, review.creator.email, review);
     }
   }
 
-  void createMark(
+  Future<bool> _askPermission() async {
+    return await Permission.locationWhenInUse.request().isGranted;
+  }
+
+  void _getCurrentLocation() async {
+    _isStatusLocationGranted = await _askPermission();
+    if (_isStatusLocationGranted) {
+      _isLoadingScreen = true;
+      // gets current position of the user
+      Geolocator.getCurrentPosition().then((currLocation) {
+        setState(() {
+          _currentLatLng =
+              LatLng(currLocation.latitude, currLocation.longitude);
+          _isLoadCurrentLocation = true;
+          _isLoadingScreen = false;
+        });
+      });
+    } else {
+      _isLoadingScreen = false;
+      setState(() {});
+    }
+  }
+
+//creates a mark in the map
+  void _createMark(
       LatLng point, String name, String author, String email, Review review) {
     _markers.add(Marker(
       markerId: MarkerId(point.toString()),
+      onTap: () async {
+        _isFavorite = await _viewModel.isFavoriteReview(_user.email, review.id);
+        _currentReview = review;
+        _isOwnReview = email == _user.email;
+        _isWatchingReview = true;
+        setState(() {});
+      },
       position: point,
-      infoWindow: InfoWindow(
-        title: name,
-        snippet: author,
-        onTap: () {
-          _currentReview = review;
-          _isOwnReview = email == _user.email;
-          _isWatchingReview = true;
-          setState(() {});
-        },
-      ),
       icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
     ));
     if (mounted) {
@@ -78,28 +102,13 @@ class _MapViewState extends State<MapView> {
     }
   }
 
-  void closeReview() {
+  void _closeReview() {
     _isWatchingReview = false;
     setState(() {});
   }
 
-  void getCurrentLocation() async {
-    if (await Permission.locationWhenInUse.serviceStatus.isEnabled) {
-      // gets current position of the user
-      Geolocator.getCurrentPosition().then((currLocation) {
-        setState(() {
-          _currentLatLng =
-              LatLng(currLocation.latitude, currLocation.longitude);
-          _isLoadCurrentLocation = true;
-        });
-      });
-    } else {
-      //request location permission
-      Permission.locationWhenInUse.request();
-    }
-  }
-
-  _handleLongTap(LatLng point) {
+  void _handleLongTap(LatLng point) {
+    //popup to create reviews
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -122,7 +131,8 @@ class _MapViewState extends State<MapView> {
     );
   }
 
-  _createReview(LatLng point) {
+  //form to create a new review
+  void _createReview(LatLng point) {
     showDialog(
         context: context,
         builder: (_) => AlertDialog(
@@ -252,9 +262,9 @@ class _MapViewState extends State<MapView> {
                             onPressed: () async {
                               if (_mapFormKey.currentState!.validate()) {
                                 //create review in the DB
-                                Review newReview = await createReviewDB(point);
+                                Review newReview = await _createReviewDB(point);
                                 //Create mark
-                                createMark(point, _nameController.text,
+                                _createMark(point, _nameController.text,
                                     _user.userName, _user.email, newReview);
                                 //reset texts
                                 _nameController.text = '';
@@ -280,25 +290,27 @@ class _MapViewState extends State<MapView> {
             ));
   }
 
-  void setBool(bool value) {
+  void _setBool(bool value) {
     setState(() {
       _isSearching = value;
     });
   }
 
-  void rebuild(String searchTerm) {
+  // called when search them changes
+  void _rebuild(String searchTerm) {
     _searchTerm = searchTerm;
     setState(() {});
   }
 
-  Widget searchBar() {
+  // search bar widget
+  Widget _searchBar() {
     return Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
       _isSearching
           ? SizedBox(
               width: 50,
               child: IconButton(
                 onPressed: () {
-                  setBool(false);
+                  _setBool(false);
                   FocusScope.of(context).unfocus();
                 },
                 icon: const Icon(
@@ -331,8 +343,8 @@ class _MapViewState extends State<MapView> {
             width: _isSearching ? 260 : 270,
             child: SizedBox(
               child: TextField(
-                onChanged: rebuild,
-                onTap: () => setBool(true),
+                onChanged: _rebuild,
+                onTap: () => _setBool(true),
                 keyboardType: TextInputType.visiblePassword,
                 decoration: InputDecoration(
                   isCollapsed: false,
@@ -349,12 +361,13 @@ class _MapViewState extends State<MapView> {
     ]);
   }
 
-  Future<Review> createReviewDB(LatLng point) async {
+  // creates a review with all its information obtained in the popup
+  Future<Review> _createReviewDB(LatLng point) async {
     DateTime date = DateTime.now();
     DateFormat formatter = DateFormat('dd-MM-yy');
     String formattedDate = formatter.format(date);
-    UserProfile creator = UserProfile(_user.email, _user.userName,
-        _user.followers, _user.following, _user.presentation);
+    User creator = User(_user.email, _user.userName, _user.followers,
+        _user.following, _user.presentation);
     // translates coordinates to city and country
     List<Placemark> _placemarks = await placemarkFromCoordinates(
         point.latitude, point.longitude,
@@ -362,8 +375,9 @@ class _MapViewState extends State<MapView> {
     Placemark location = _placemarks.first;
     String country = location.country ?? '';
     String city = location.locality ?? '';
-
+    // new review
     Review newReview = Review(
+        0,
         _nameController.text,
         formattedDate,
         _periodController.text,
@@ -376,6 +390,7 @@ class _MapViewState extends State<MapView> {
         creator,
         point.latitude,
         point.longitude);
+    // adds the new review to the DB
     _viewModel.createReview(newReview, _user.email);
     return newReview;
   }
@@ -384,13 +399,17 @@ class _MapViewState extends State<MapView> {
     _controller.complete(controller);
   }
 
+  // search screen
   Widget _getSearchScreen() {
     List<Review> filteredList = [];
     for (Review review in _reviewList) {
+      // filters reviews
       if (review.name.contains(_searchTerm) && _searchTerm.isNotEmpty) {
+        // reviews filtered that matches with the search term
         filteredList.add(review);
       }
     }
+    // result list
     return Container(
       color: Colors.white,
       child: ListView.builder(
@@ -436,38 +455,95 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: !_isLoadCurrentLocation
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(children: [
-              //GOOGLE MAPS
-              GoogleMap(
-                initialCameraPosition:
-                    CameraPosition(target: _currentLatLng, zoom: 15),
-                onMapCreated: _onMapCreated,
-                zoomControlsEnabled: false,
-                onLongPress: _handleLongTap,
-                markers: _markers,
-              ),
-              if (_isSearching) _getSearchScreen(),
-              //Search Bar
-              SizedBox(
-                  height: 100,
-                  width: MediaQuery.of(context).size.width,
-                  child: searchBar()),
-              if (_isWatchingReview)
-                Center(
-                  child: SizedBox(
-                    width: 320,
-                    child: SingleChildScrollView(
-                        child: ReviewWidget(
-                      review: _currentReview,
-                      ownReview: _isOwnReview,
-                      isMap: true,
-                      callback: closeReview,
-                    )),
-                  ),
-                ),
-            ]),
-    );
+        body: _isStatusLocationGranted
+            //location permission granted
+            ? _isLoadCurrentLocation
+                //current location loaded
+                ? Stack(children: [
+                    //Google Map
+                    GoogleMap(
+                      initialCameraPosition:
+                          CameraPosition(target: _currentLatLng, zoom: 15),
+                      onMapCreated: _onMapCreated,
+                      zoomControlsEnabled: false,
+                      onLongPress: _handleLongTap,
+                      markers: _markers,
+                    ),
+                    //Search screen
+                    if (_isSearching) _getSearchScreen(),
+                    //Search Bar
+                    SizedBox(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        child: _searchBar()),
+                    if (_isWatchingReview)
+                      //Review selected
+                      Center(
+                        child: SizedBox(
+                          width: 320,
+                          child: SingleChildScrollView(
+                              child: ReviewWidget(
+                            review: _currentReview,
+                            ownReview: _isOwnReview,
+                            isFavorite: _isFavorite,
+                            isMap: true,
+                            callback: _closeReview,
+                          )),
+                        ),
+                      ),
+                  ])
+                //loading current location
+                : const Center(child: CircularProgressIndicator())
+            //location permission not granted
+            : _isLoadingScreen
+                ? const Center(child: CircularProgressIndicator())
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Center(
+                        child: Text(
+                          'You need to enable your location to use this section.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: 'OpenSans',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      SizedBox(
+                        height: 60,
+                        width: 250,
+                        child: ElevatedButton(
+                            style: ButtonStyle(
+                              elevation: MaterialStateProperty.all(20),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(45.0),
+                              )),
+                              backgroundColor:
+                                  MaterialStateProperty.all(Colors.orange),
+                            ),
+                            onPressed: () {
+                              _askPermission();
+                              if (_isStatusLocationGranted) {
+                                _getCurrentLocation();
+                                _setReviewMarks();
+                              }
+                              setState(() {});
+                            },
+                            child: const Text(
+                              'Ask Permissions',
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontFamily: 'OpenSans',
+                                  color: Colors.white),
+                            )),
+                      ),
+                    ],
+                  ));
   }
 }

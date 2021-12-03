@@ -1,7 +1,7 @@
 import 'package:histo_view/model/review.dart';
 import 'package:histo_view/model/services/review_firebase_service.dart';
 import 'package:histo_view/model/services/user_firebase_service.dart';
-import 'package:histo_view/model/user_profile.dart';
+import 'package:histo_view/model/user.dart';
 
 class MapViewModel {
   Future<void> createReview(Review review, String email) async {
@@ -21,9 +21,10 @@ class MapViewModel {
       final user =
           await UserFireBaseService().getUserByEmail(reviewDB['_email']);
       var userDB = user.docs[0].data();
-      UserProfile creator = UserProfile(userDB['_email'], userDB['name'],
-          userDB['followers'], userDB['following'], userDB['presentation']);
+      User creator = User(userDB['_email'], userDB['name'], userDB['followers'],
+          userDB['following'], userDB['presentation']);
       reviewList.add(Review(
+        reviewDB['_id'],
         reviewDB['name'],
         reviewDB['creationDate'],
         reviewDB['periodDate'],
@@ -39,5 +40,15 @@ class MapViewModel {
       ));
     }
     return reviewList;
+  }
+
+  Future<bool> isFavoriteReview(String email, int id) async {
+    bool isFavorite = false;
+    final review =
+        await ReviewFireBaseService().getFavoriteReviewById(email, id);
+    if (review.exists) {
+      isFavorite = true;
+    }
+    return isFavorite;
   }
 }

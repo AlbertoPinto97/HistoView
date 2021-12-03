@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:form_field_validator/form_field_validator.dart';
 import 'package:histo_view/viewModel/register_login_view_model.dart';
-import 'package:histo_view/model/user.dart';
+import 'package:histo_view/model/current_user.dart';
 
 class RegisterView extends StatefulWidget {
   const RegisterView({Key? key}) : super(key: key);
@@ -22,7 +22,7 @@ class _RegisterViewState extends State<RegisterView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameSurnameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final viewModel = RegisterLoginViewModel();
+  final _viewModel = RegisterLoginViewModel();
   bool _isEmailTaken = false;
 
   @override
@@ -221,7 +221,7 @@ class _RegisterViewState extends State<RegisterView> {
                               MaterialStateProperty.all(Colors.orange),
                         ),
                         onPressed: () async {
-                          User user = User();
+                          CurrentUser user = CurrentUser();
                           user.setParams(
                               _emailController.text,
                               _passwordController.text,
@@ -230,17 +230,17 @@ class _RegisterViewState extends State<RegisterView> {
                               0,
                               '');
                           if (_registerFormKey.currentState!.validate()) {
-                            _isEmailTaken = await viewModel
+                            _isEmailTaken = await _viewModel
                                 .userExists(_emailController.text);
                             if (!_isEmailTaken) {
-                              viewModel.registerUser(user);
+                              _viewModel.registerUser(user);
                               Navigator.pushNamed(context, '/accountCreated');
                             }
                           } else if (_isEmailTaken) {
-                            _isEmailTaken = await viewModel
+                            _isEmailTaken = await _viewModel
                                 .userExists(_emailController.text);
                             if (!_isEmailTaken) {
-                              viewModel.registerUser(user);
+                              _viewModel.registerUser(user);
                               Navigator.pushNamed(context, '/accountCreated');
                             }
                           }
