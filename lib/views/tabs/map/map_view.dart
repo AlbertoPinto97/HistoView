@@ -30,6 +30,7 @@ class _MapViewState extends State<MapView> {
   bool _isOwnReview = false;
   bool _isFavorite = false;
   bool _isStatusLocationGranted = false;
+  bool _showInfoMessage = true;
   late Review _currentReview;
   final _viewModel = MapViewModel();
   final CurrentUser _user = CurrentUser();
@@ -472,10 +473,60 @@ class _MapViewState extends State<MapView> {
                     //Search screen
                     if (_isSearching) _getSearchScreen(),
                     //Search Bar
-                    SizedBox(
-                        height: 100,
-                        width: MediaQuery.of(context).size.width,
-                        child: _searchBar()),
+                    Column(
+                      children: [
+                        SizedBox(
+                            height: 100,
+                            width: MediaQuery.of(context).size.width,
+                            child: _searchBar()),
+                        const SizedBox(
+                          height: 15,
+                        ),
+                        // Info message
+                        if (_showInfoMessage)
+                          Container(
+                            alignment: Alignment.topRight,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    border: Border.all(
+                                      color: Colors.blueAccent,
+                                    ),
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(20))),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.fromLTRB(
+                                          10, 10, 0, 10),
+                                      width: 250,
+                                      child: const Text(
+                                        'To create a new review you have to long tap the map in the location where you want to create it.',
+                                        style: TextStyle(
+                                            color: Colors.blueAccent,
+                                            fontSize: 13,
+                                            fontFamily: 'OpenSans'),
+                                      ),
+                                    ),
+                                    IconButton(
+                                        onPressed: () {
+                                          //close info message
+                                          _showInfoMessage = false;
+                                          setState(() {});
+                                        },
+                                        icon: const Icon(
+                                          Icons.close,
+                                          size: 20,
+                                          color: Colors.blueAccent,
+                                        )),
+                                  ],
+                                )),
+                          )
+                      ],
+                    ),
                     if (_isWatchingReview)
                       //Review selected
                       Center(
