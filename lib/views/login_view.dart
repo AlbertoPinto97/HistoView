@@ -28,6 +28,8 @@ class _LoginViewState extends State<LoginView> {
 
   @override
   Widget build(BuildContext context) {
+    _emailController.text = "";
+    _passwordController.text = "";
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,

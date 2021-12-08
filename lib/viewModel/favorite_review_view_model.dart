@@ -34,7 +34,6 @@ class FavoriteReviewViewModel {
           reviewDB['locationCountry'],
           reviewDB['_email'],
           reviewDB['starRate'].toDouble(),
-          reviewDB['countRate'],
           reviewDB['description'],
           creator,
           reviewDB['latitude'],
@@ -51,5 +50,20 @@ class FavoriteReviewViewModel {
 
   void removeFavoriteReview(String email, int id) {
     ReviewFireBaseService().removeFavoriteReview(email, id);
+  }
+
+  Future<double> rateReview(String email, int id, int stars) async {
+    // rate review
+    ReviewFireBaseService().rateReview(email, id, stars);
+    // calculate new arithmetic average
+    final reviews = await ReviewFireBaseService().getRatesReviewById(id);
+    int totalRate = 0;
+    for (var review in reviews.docs) {
+      final reviewDB = review.data();
+      totalRate = reviewDB['stars'] + totalRate;
+    }
+    final finalRate = totalRate / reviews.docs.length;
+    ReviewFireBaseService().setReviewStarRate(email, id, finalRate);
+    return finalRate;
   }
 }

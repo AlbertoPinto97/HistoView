@@ -23,7 +23,6 @@ class MapView extends StatefulWidget {
 class _MapViewState extends State<MapView> {
   final Completer<GoogleMapController> _controller = Completer();
   final _mapFormKey = GlobalKey<FormState>();
-  bool _isLoadingScreen = true;
   bool _isSearching = false;
   bool _isLoadCurrentLocation = false;
   bool _isWatchingReview = false;
@@ -31,10 +30,12 @@ class _MapViewState extends State<MapView> {
   bool _isFavorite = false;
   bool _isStatusLocationGranted = false;
   bool _showInfoMessage = true;
+  bool _showCreateReview = false;
   late Review _currentReview;
   final _viewModel = MapViewModel();
   final CurrentUser _user = CurrentUser();
   late LatLng _currentLatLng;
+  late LatLng _point;
   final Set<Marker> _markers = {};
   List<Review> _reviewList = [];
   String _searchTerm = '';
@@ -66,19 +67,20 @@ class _MapViewState extends State<MapView> {
 
   void _getCurrentLocation() async {
     _isStatusLocationGranted = await _askPermission();
+    // if location permission is granted
     if (_isStatusLocationGranted) {
-      _isLoadingScreen = true;
       // gets current position of the user
       Geolocator.getCurrentPosition().then((currLocation) {
         setState(() {
           _currentLatLng =
               LatLng(currLocation.latitude, currLocation.longitude);
           _isLoadCurrentLocation = true;
-          _isLoadingScreen = false;
         });
       });
     } else {
-      _isLoadingScreen = false;
+      // default location (Barcelona)
+      _currentLatLng = const LatLng(41.390205, 2.154007);
+      _isLoadCurrentLocation = true;
       setState(() {});
     }
   }
@@ -123,7 +125,9 @@ class _MapViewState extends State<MapView> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
-              _createReview(point);
+              _point = point;
+              _showCreateReview = true;
+              setState(() {});
             },
             child: const Text('Yes'),
           ),
@@ -133,13 +137,16 @@ class _MapViewState extends State<MapView> {
   }
 
   //form to create a new review
-  void _createReview(LatLng point) {
-    showDialog(
-        context: context,
-        builder: (_) => AlertDialog(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(45.0))),
-              title: const Center(
+  Widget _createReview() {
+    return SizedBox(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+        color: Colors.white,
+        child: Form(
+          key: _mapFormKey,
+          child: ListView(
+            children: [
+              const Center(
                   child: Text(
                 'New Review',
                 style: TextStyle(
@@ -147,148 +154,169 @@ class _MapViewState extends State<MapView> {
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold),
               )),
-              content: SizedBox(
-                height: 400,
-                child: Form(
-                  key: _mapFormKey,
-                  child: ListView(
-                    children: [
-                      //Name
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Name',
-                          style: TextStyle(
-                            fontFamily: 'OpenSans',
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        validator:
-                            RequiredValidator(errorText: 'Name is required'),
-                        controller: _nameController,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: const InputDecoration(
-                            isDense: true, hintText: 'Name of the review'),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      //Period
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Period',
-                          style: TextStyle(
-                            fontFamily: 'OpenSans',
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        validator:
-                            RequiredValidator(errorText: 'Period is required'),
-                        controller: _periodController,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: const InputDecoration(
-                            isDense: true,
-                            hintText: 'Age of the event e.g. 1555'),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      //Topic
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Topic',
-                          style: TextStyle(
-                            fontFamily: 'OpenSans',
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        validator:
-                            RequiredValidator(errorText: 'Topic is required'),
-                        controller: _topicController,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: const InputDecoration(
-                            isDense: true, hintText: 'E.g. Roman empire'),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      //Description
-                      Container(
-                        alignment: Alignment.topLeft,
-                        child: const Text(
-                          'Description',
-                          style: TextStyle(
-                            fontFamily: 'OpenSans',
-                            fontSize: 18,
-                          ),
-                        ),
-                      ),
-                      TextFormField(
-                        validator: RequiredValidator(
-                            errorText: 'Description is required'),
-                        controller: _descriptionController,
-                        minLines: 10,
-                        maxLines: 10,
-                        style: const TextStyle(fontSize: 15),
-                        decoration: const InputDecoration(
-                          hintText: 'Description about the event',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 25,
-                      ),
-                      //Button
-                      SizedBox(
-                        height: 50,
-                        width: 150,
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(45.0),
-                              )),
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.orange),
-                            ),
-                            onPressed: () async {
-                              if (_mapFormKey.currentState!.validate()) {
-                                //create review in the DB
-                                Review newReview = await _createReviewDB(point);
-                                //Create mark
-                                _createMark(point, _nameController.text,
-                                    _user.userName, _user.email, newReview);
-                                //reset texts
-                                _nameController.text = '';
-                                _descriptionController.text = '';
-                                _periodController.text = '';
-                                _topicController.text = '';
-                                //close popup
-                                Navigator.of(context).pop(true);
-                              }
-                            },
-                            child: const Text(
-                              'Create Review',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontFamily: 'OpenSans',
-                                  color: Colors.white),
-                            )),
-                      ),
-                    ],
+              const SizedBox(
+                height: 20,
+              ),
+              //Name
+              Container(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  'Name',
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 18,
                   ),
                 ),
               ),
-            ));
+              TextFormField(
+                validator: RequiredValidator(errorText: 'Name is required'),
+                controller: _nameController,
+                style: const TextStyle(fontSize: 15),
+                decoration: const InputDecoration(
+                    isDense: true, hintText: 'Name of the review'),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              //Period
+              Container(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  'Period',
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              TextFormField(
+                validator: RequiredValidator(errorText: 'Period is required'),
+                controller: _periodController,
+                style: const TextStyle(fontSize: 15),
+                decoration: const InputDecoration(
+                    isDense: true, hintText: 'Age of the event e.g. 1555'),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              //Topic
+              Container(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  'Topic',
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              TextFormField(
+                validator: RequiredValidator(errorText: 'Topic is required'),
+                controller: _topicController,
+                style: const TextStyle(fontSize: 15),
+                decoration: const InputDecoration(
+                    isDense: true, hintText: 'E.g. Roman empire'),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              //Description
+              Container(
+                alignment: Alignment.topLeft,
+                child: const Text(
+                  'Description',
+                  style: TextStyle(
+                    fontFamily: 'OpenSans',
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+              TextFormField(
+                validator:
+                    RequiredValidator(errorText: 'Description is required'),
+                controller: _descriptionController,
+                minLines: 7,
+                maxLines: 7,
+                style: const TextStyle(fontSize: 15),
+                decoration: const InputDecoration(
+                  hintText: 'Description about the event',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              //Button
+              SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45.0),
+                      )),
+                      backgroundColor: MaterialStateProperty.all(Colors.orange),
+                    ),
+                    onPressed: () async {
+                      if (_mapFormKey.currentState!.validate()) {
+                        //create review in the DB
+                        Review newReview = await _createReviewDB(_point);
+                        //Create mark
+                        _createMark(_point, _nameController.text,
+                            _user.userName, _user.email, newReview);
+                        //reset texts
+                        _nameController.text = '';
+                        _descriptionController.text = '';
+                        _periodController.text = '';
+                        _topicController.text = '';
+                        // close create review
+                        _showCreateReview = false;
+                        setState(() {});
+                      }
+                    },
+                    child: const Text(
+                      'Create Review',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontFamily: 'OpenSans',
+                          color: Colors.white),
+                    )),
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              SizedBox(
+                height: 50,
+                width: 150,
+                child: ElevatedButton(
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(45.0),
+                      )),
+                      backgroundColor: MaterialStateProperty.all(Colors.orange),
+                    ),
+                    onPressed: () async {
+                      _showCreateReview = false;
+                      setState(() {});
+                    },
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontFamily: 'OpenSans',
+                          color: Colors.white),
+                    )),
+              ),
+              const SizedBox(
+                height: 2,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   void _setBool(bool value) {
@@ -386,7 +414,6 @@ class _MapViewState extends State<MapView> {
         country,
         _user.email,
         0,
-        0,
         _descriptionController.text,
         creator,
         point.latitude,
@@ -425,7 +452,7 @@ class _MapViewState extends State<MapView> {
                     filteredList[index].longitude);
                 final GoogleMapController controller = await _controller.future;
                 controller
-                    .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
+                    .animateCamera(CameraUpdate.newLatLngZoom(latLng, 20));
                 setState(() {});
               },
               child: Container(
@@ -456,145 +483,93 @@ class _MapViewState extends State<MapView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: _isStatusLocationGranted
-            //location permission granted
-            ? _isLoadCurrentLocation
-                //current location loaded
-                ? Stack(children: [
-                    //Google Map
-                    GoogleMap(
-                      initialCameraPosition:
-                          CameraPosition(target: _currentLatLng, zoom: 15),
-                      onMapCreated: _onMapCreated,
-                      zoomControlsEnabled: false,
-                      onLongPress: _handleLongTap,
-                      markers: _markers,
+        body: _isLoadCurrentLocation
+            //current location loaded
+            ? Stack(children: [
+                //Google Map
+                GoogleMap(
+                  initialCameraPosition:
+                      CameraPosition(target: _currentLatLng, zoom: 15),
+                  onMapCreated: _onMapCreated,
+                  zoomControlsEnabled: false,
+                  onLongPress: _handleLongTap,
+                  markers: _markers,
+                ),
+                //Search screen
+                if (_isSearching) _getSearchScreen(),
+                //Search Bar
+                Column(
+                  children: [
+                    SizedBox(
+                        height: 100,
+                        width: MediaQuery.of(context).size.width,
+                        child: _searchBar()),
+                    const SizedBox(
+                      height: 15,
                     ),
-                    //Search screen
-                    if (_isSearching) _getSearchScreen(),
-                    //Search Bar
-                    Column(
-                      children: [
-                        SizedBox(
-                            height: 100,
-                            width: MediaQuery.of(context).size.width,
-                            child: _searchBar()),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        // Info message
-                        if (_showInfoMessage)
-                          Container(
-                            alignment: Alignment.topRight,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    border: Border.all(
+                    // Info message
+                    if (_showInfoMessage)
+                      Container(
+                        alignment: Alignment.topRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                border: Border.all(
+                                  color: Colors.blueAccent,
+                                ),
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(20))),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Container(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(10, 10, 0, 10),
+                                  width: 250,
+                                  child: const Text(
+                                    'To create a new review you have to long tap the map in the location where you want to create it.',
+                                    style: TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontSize: 13,
+                                        fontFamily: 'OpenSans'),
+                                  ),
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      //close info message
+                                      _showInfoMessage = false;
+                                      setState(() {});
+                                    },
+                                    icon: const Icon(
+                                      Icons.close,
+                                      size: 20,
                                       color: Colors.blueAccent,
-                                    ),
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(20))),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          10, 10, 0, 10),
-                                      width: 250,
-                                      child: const Text(
-                                        'To create a new review you have to long tap the map in the location where you want to create it.',
-                                        style: TextStyle(
-                                            color: Colors.blueAccent,
-                                            fontSize: 13,
-                                            fontFamily: 'OpenSans'),
-                                      ),
-                                    ),
-                                    IconButton(
-                                        onPressed: () {
-                                          //close info message
-                                          _showInfoMessage = false;
-                                          setState(() {});
-                                        },
-                                        icon: const Icon(
-                                          Icons.close,
-                                          size: 20,
-                                          color: Colors.blueAccent,
-                                        )),
-                                  ],
-                                )),
-                          )
-                      ],
-                    ),
-                    if (_isWatchingReview)
-                      //Review selected
-                      Center(
-                        child: SizedBox(
-                          width: 320,
-                          child: SingleChildScrollView(
-                              child: ReviewWidget(
-                            review: _currentReview,
-                            ownReview: _isOwnReview,
-                            isFavorite: _isFavorite,
-                            isMap: true,
-                            callback: _closeReview,
-                          )),
-                        ),
-                      ),
-                  ])
-                //loading current location
-                : const Center(child: CircularProgressIndicator())
-            //location permission not granted
-            : _isLoadingScreen
-                ? const Center(child: CircularProgressIndicator())
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Center(
-                        child: Text(
-                          'You need to enable your location to use this section.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontFamily: 'OpenSans',
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 30,
-                      ),
-                      SizedBox(
-                        height: 60,
-                        width: 250,
-                        child: ElevatedButton(
-                            style: ButtonStyle(
-                              elevation: MaterialStateProperty.all(20),
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(45.0),
-                              )),
-                              backgroundColor:
-                                  MaterialStateProperty.all(Colors.orange),
-                            ),
-                            onPressed: () {
-                              _askPermission();
-                              if (_isStatusLocationGranted) {
-                                _getCurrentLocation();
-                                _setReviewMarks();
-                              }
-                              setState(() {});
-                            },
-                            child: const Text(
-                              'Ask Permissions',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontFamily: 'OpenSans',
-                                  color: Colors.white),
+                                    )),
+                              ],
                             )),
-                      ),
-                    ],
-                  ));
+                      )
+                  ],
+                ),
+                if (_isWatchingReview)
+                  //Review selected
+                  Center(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 30),
+                      width: 320,
+                      child: SingleChildScrollView(
+                          child: ReviewWidget(
+                        review: _currentReview,
+                        ownReview: _isOwnReview,
+                        isFavorite: _isFavorite,
+                        isMap: true,
+                        callback: _closeReview,
+                      )),
+                    ),
+                  ),
+                if (_showCreateReview) _createReview()
+              ])
+            //loading current location
+            : const Center(child: CircularProgressIndicator()));
   }
 }

@@ -10,7 +10,6 @@ class Review {
   String locationCountry;
   String creatorEmail;
   double starRate;
-  int countRate;
   String description;
   User creator;
   double latitude;
@@ -25,7 +24,6 @@ class Review {
       this.locationCountry,
       this.creatorEmail,
       this.starRate,
-      this.countRate,
       this.description,
       this.creator,
       this.latitude,

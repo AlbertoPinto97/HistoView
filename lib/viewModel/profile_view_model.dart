@@ -26,7 +26,6 @@ class ProfileViewModel {
           reviewDB['locationCountry'],
           reviewDB['_email'],
           reviewDB['starRate'].toDouble(),
-          reviewDB['countRate'],
           reviewDB['description'],
           creator,
           reviewDB['latitude'],
@@ -63,6 +62,7 @@ class ProfileViewModel {
     for (var userDB in usersDB.docs) {
       followers = userDB.data()['followersList'];
     }
+
     if (followers.isNotEmpty && followers.contains(userEmail)) {
       return true;
     }

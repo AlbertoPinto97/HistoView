@@ -31,6 +31,7 @@ class _ReviewWidgetState extends State<ReviewWidget> {
   late bool _isFavorite;
   final FavoriteReviewViewModel _viewModel = FavoriteReviewViewModel();
   final CurrentUser _user = CurrentUser();
+  bool _needHalfStar = false;
 
   @override
   void initState() {
@@ -55,23 +56,40 @@ class _ReviewWidgetState extends State<ReviewWidget> {
     setState(() {});
   }
 
+  void rate(int stars) async {
+    widget.review.starRate =
+        await _viewModel.rateReview(_user.email, widget.review.id, stars);
+    setState(() {});
+  }
+
+  int getWholeNumberStars(double value) {
+    double newValue = value % 1;
+    if (newValue >= 0.25 && newValue < 0.75) {
+      _needHalfStar = true;
+      return value.toInt();
+    }
+    _needHalfStar = false;
+    return value.round();
+  }
+
   @override
   Widget build(BuildContext context) {
     String _title = widget.review.name + " (" + widget.review.periodDate + ")";
     String _location =
         widget.review.locationCity + " (" + widget.review.locationCountry + ")";
-    bool needHalfStar = halfStar(widget.review.starRate);
+    int _stars = getWholeNumberStars(widget.review.starRate);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 25),
       decoration: BoxDecoration(
           color: Colors.orange.shade100,
           boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              spreadRadius: 5,
-              blurRadius: 7,
-              offset: const Offset(0, 3),
-            ),
+            if (!widget.isMap)
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 5,
+                blurRadius: 7,
+                offset: const Offset(0, 3),
+              ),
           ],
           borderRadius: const BorderRadius.all(Radius.circular(45))),
       child: Column(
@@ -127,34 +145,46 @@ class _ReviewWidgetState extends State<ReviewWidget> {
           //STARS
           Row(
             children: [
-              for (var i = 0; i < widget.review.starRate.toInt(); i++)
-                const Icon(
-                  Icons.star,
-                  color: Colors.yellowAccent,
-                  size: 30,
-                ),
-              // adds half star
-              if (needHalfStar)
-                const Icon(
-                  Icons.star_half,
-                  color: Colors.yellowAccent,
-                  size: 30,
-                ),
-              // adds void stars until 5 stars (having half star)
-              if (5 - widget.review.starRate.toInt() > 0 && needHalfStar)
-                for (var i = 1; i < 5 - widget.review.starRate.toInt(); i++)
-                  const Icon(
-                    Icons.star_border,
+              for (var i = 0; i < _stars; i++)
+                IconButton(
+                  onPressed: () => rate(i + 1),
+                  icon: const Icon(
+                    Icons.star,
                     color: Colors.yellowAccent,
                     size: 30,
                   ),
-              // adds void stars until 5 stars (not having half star)
-              if (5 - widget.review.starRate.toInt() > 0 && !needHalfStar)
-                for (var i = 0; i < 5 - widget.review.starRate.toInt(); i++)
-                  const Icon(
-                    Icons.star_border,
+                ),
+              // adds half star
+              if (_needHalfStar)
+                IconButton(
+                  onPressed: () => rate((_stars + 0.5).round()),
+                  icon: const Icon(
+                    Icons.star_half,
                     color: Colors.yellowAccent,
                     size: 30,
+                  ),
+                ),
+              // adds void stars until 5 stars (having half star)
+              if (5 - _stars > 0 && _needHalfStar)
+                for (var i = 1; i < 5 - _stars; i++)
+                  IconButton(
+                    onPressed: () => rate(i + 1 + _stars),
+                    icon: const Icon(
+                      Icons.star_border,
+                      color: Colors.yellowAccent,
+                      size: 30,
+                    ),
+                  ),
+              // adds void stars until 5 stars (not having half star)
+              if (5 - _stars > 0 && !_needHalfStar)
+                for (var i = 0; i < 5 - _stars; i++)
+                  IconButton(
+                    onPressed: () => rate(i + 1 + _stars),
+                    icon: const Icon(
+                      Icons.star_border,
+                      color: Colors.yellowAccent,
+                      size: 30,
+                    ),
                   ),
             ],
           ),
@@ -162,17 +192,13 @@ class _ReviewWidgetState extends State<ReviewWidget> {
             height: 10,
           ),
           // TITLE AND PERIOD
-          Row(
-            children: [
-              Text(
-                _title,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w800,
-                  fontFamily: 'OpenSans',
-                ),
-              )
-            ],
+          Text(
+            _title,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'OpenSans',
+            ),
           ),
           const SizedBox(
             height: 15,
@@ -227,12 +253,5 @@ class _ReviewWidgetState extends State<ReviewWidget> {
         ],
       ),
     );
-  }
-
-  bool halfStar(double value) {
-    double newValue = value * 2;
-    newValue = newValue.round() / 2;
-    if (newValue > value) return true;
-    return false;
   }
 }

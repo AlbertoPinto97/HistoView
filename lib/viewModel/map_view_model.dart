@@ -8,7 +8,11 @@ class MapViewModel {
     //gets max id
     final idDB = await ReviewFireBaseService().getReviewMaxId();
     // next id (max id + 1)
-    int id = idDB.docs[0].data()['_id'] + 1;
+    int id = 0;
+    // checks if there's any id
+    if (idDB.docs.length > 0) {
+      id = idDB.docs[0].data()['_id'] + 1;
+    }
     // create new Review in DB
     ReviewFireBaseService().createReview(review, email, id);
   }
@@ -32,7 +36,6 @@ class MapViewModel {
         reviewDB['locationCountry'],
         reviewDB['_email'],
         reviewDB['starRate'].toDouble(),
-        reviewDB['countRate'],
         reviewDB['description'],
         creator,
         reviewDB['latitude'],

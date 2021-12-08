@@ -43,10 +43,9 @@ class ReviewFireBaseService {
   }
 
   void createReview(Review review, String email, int id) {
-    FirebaseFirestore.instance.collection('reviews').add({
+    FirebaseFirestore.instance.collection('reviews').doc(id.toString()).set({
       '_email': email,
       '_id': id,
-      'countRate': review.countRate,
       'creationDate': review.creationDate,
       'description': review.description,
       'locationCity': review.locationCity,
@@ -74,5 +73,26 @@ class ReviewFireBaseService {
         .collection('favoriteReviews')
         .doc(email + '_' + id.toString())
         .delete();
+  }
+
+  void rateReview(String email, int id, int stars) {
+    FirebaseFirestore.instance
+        .collection('ratesReview')
+        .doc(email + '_' + id.toString())
+        .set({'_userEmail': email, '_reviewId': id, 'stars': stars});
+  }
+
+  getRatesReviewById(int id) async {
+    return await FirebaseFirestore.instance
+        .collection('ratesReview')
+        .where('_reviewId', isEqualTo: id)
+        .get();
+  }
+
+  void setReviewStarRate(String email, int id, double rate) {
+    FirebaseFirestore.instance
+        .collection('reviews')
+        .doc(id.toString())
+        .update({'starRate': rate});
   }
 }
