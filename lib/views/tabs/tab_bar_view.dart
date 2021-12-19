@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:histo_view/views/tabs/favorite/favorite_view.dart';
 import 'package:histo_view/views/tabs/map/map_view.dart';
 import 'package:histo_view/views/tabs/profile/profile_view.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TabBarAppView extends StatefulWidget {
   const TabBarAppView({Key? key}) : super(key: key);
@@ -80,12 +81,19 @@ class _TabBarAppViewState extends State<TabBarAppView> {
                 child: const Text('No'),
               ),
               TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
+                onPressed: () => logout(),
                 child: const Text('Yes'),
               ),
             ],
           ),
         )) ??
         false;
+  }
+
+  void logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    //clear all sharedPrefenreces
+    await prefs.clear();
+    Navigator.pushNamed(context, '/login');
   }
 }
