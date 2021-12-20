@@ -431,8 +431,12 @@ class _MapViewState extends State<MapView> {
   Widget _getSearchScreen() {
     List<Review> filteredList = [];
     for (Review review in _reviewList) {
-      // filters reviews
-      if (review.name.contains(_searchTerm) && _searchTerm.isNotEmpty) {
+      // filters reviews by creator's name and review's name
+      if (review.name.toLowerCase().contains(_searchTerm.toLowerCase()) ||
+          review.creator.userName
+                  .toLowerCase()
+                  .contains(_searchTerm.toLowerCase()) &&
+              _searchTerm.isNotEmpty) {
         // reviews filtered that matches with the search term
         filteredList.add(review);
       }
@@ -452,7 +456,7 @@ class _MapViewState extends State<MapView> {
                     filteredList[index].longitude);
                 final GoogleMapController controller = await _controller.future;
                 controller
-                    .animateCamera(CameraUpdate.newLatLngZoom(latLng, 20));
+                    .animateCamera(CameraUpdate.newLatLngZoom(latLng, 15));
                 setState(() {});
               },
               child: Container(
