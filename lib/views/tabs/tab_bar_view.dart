@@ -21,6 +21,9 @@ class _TabBarAppViewState extends State<TabBarAppView> {
 
   // changes the screen
   void _onItemTapped(int index) {
+    //refresh favorite
+    _widgetOptions.removeAt(0);
+    _widgetOptions.insert(0, FavoriteView(key: GlobalKey()));
     _selectedIndex = index;
     setState(() {});
   }
@@ -36,8 +39,10 @@ class _TabBarAppViewState extends State<TabBarAppView> {
         onWillPop: _onWillPop,
         child: Scaffold(
           resizeToAvoidBottomInset: false,
-          body: Center(
-            child: _widgetOptions.elementAt(_selectedIndex),
+          body: IndexedStack(
+            //save tab state (in this case only map state)
+            index: _selectedIndex,
+            children: _widgetOptions,
           ),
           bottomNavigationBar: BottomNavigationBar(
             backgroundColor: Colors.orange.shade100,
