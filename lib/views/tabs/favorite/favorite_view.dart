@@ -91,9 +91,11 @@ class _FavoriteViewState extends State<FavoriteView> {
   // get favorites reviews from DB
   Future<void> _getFavoritesReviews(String email) async {
     List<Review> result = await _viewModel.getFavoritesReviews(email);
-    setState(() {
-      _favoriteReviewList = result;
-      _isLoadFavoriteReviews = true;
-    });
+    if (mounted) {
+      setState(() {
+        _favoriteReviewList = result;
+        _isLoadFavoriteReviews = true;
+      });
+    }
   }
 }

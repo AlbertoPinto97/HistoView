@@ -40,7 +40,7 @@ class _TabBarAppViewState extends State<TabBarAppView> {
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           body: IndexedStack(
-            //save tab state (in this case only map state)
+            //save tab state
             index: _selectedIndex,
             children: _widgetOptions,
           ),
